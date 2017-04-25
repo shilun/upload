@@ -1,0 +1,75 @@
+<!-- list -->
+<ul class="nav">
+  <!--系统配置-->
+  <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+    <span >fdsafdas</span>
+  </li>
+  <li>
+    <a href class="auto">      
+      <span class="pull-right text-muted">
+        <i class="fa fa-fw fa-angle-right text"></i>
+        <i class="fa fa-fw fa-angle-down text-active"></i>
+      </span>
+      <i class="glyphicon glyphicon-stats icon text-primary-dker"></i>
+      <span class="font-bold" >fdsafdsaf</span>
+    </a>
+    <ul class="nav nav-sub dk">
+      <!--配置管理-->
+      <li ui-sref-active="active">
+        <a ui-sref="app.config">
+          <span  >dsfdasfdsaaDSA</span>
+        </a>
+      </li>
+      <li>
+        <a ui-sref="app.agent">
+          <span  >daDfdsafdsaAS</span>
+        </a>
+      </li>
+      <!--任务管理-->
+      <li ui-sref-active="active">
+        <a ui-sref="app.task">
+          <span  >fdsa</span>
+        </a>
+      </li>
+      <!--邮件管理-->
+      <li ui-sref-active="active">
+        <a ui-sref="app.email">
+          <span  >fdasfsda</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+  <!--医疗机构-->
+  <li ng-class="{active:$state.includes('app.form')}">
+    <a href class="auto">
+      <span class="pull-right text-muted">
+        <i class="fa fa-fw fa-angle-right text"></i>
+        <i class="fa fa-fw fa-angle-down text-active"></i>
+      </span>
+      <b class="label bg-primary pull-right"></b>
+      <i class="glyphicon glyphicon-list"></i>
+      <span class="font-bold" >grdfstgdf</span>
+    </a>
+    <ul class="nav nav-sub dk">
+      <!--医生管理-->
+      <li ui-sref-active="active">
+        <a ui-sref="app.doctor">
+          <span  >fdsafdsafsd</span>
+        </a>
+      </li>
+      <!--医疗机构-->
+      <li ui-sref-active="active">
+        <a ui-sref="app.gpcenter">
+          <span  >treawtrew</span>
+        </a>
+      </li>
+      <!--预约管理-->
+      <li ui-sref-active="active">
+        <a ui-sref="app.appoint">
+          <span  >tresdtre</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+</ul>
+<!-- / list -->
