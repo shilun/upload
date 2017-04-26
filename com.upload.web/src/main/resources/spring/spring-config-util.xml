@@ -4,48 +4,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        		http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-autowire="byName">
-	<bean class="java.lang.String" id="passKey">
-		<constructor-arg index="0">
-			<value>${pass.key}</value>
-		</constructor-arg>
-	</bean>
-	<bean class="java.lang.String" id="cookie.key">
-		<constructor-arg index="0">
-			<value>${cookie.key}</value>
-		</constructor-arg>
-	</bean>
-	<bean class="java.lang.String" id="loginCookieKey">
-		<constructor-arg index="0">
-			<value>${login.cookie.key}</value>
-		</constructor-arg>
-	</bean>
 	<bean class="java.lang.String" id="fileRootPath">
 		<constructor-arg index="0">
 			<value>/home/upload/fileroot</value>
 		</constructor-arg>
-	</bean>
-	<bean class="com.common.cookie.CookieItem" id="cookieItem"
-		  abstract="true">
-		<property value="true" name="encrypt" />
-		<property value="${cookie.key}" name="key" />
-		<property value="/" name="path" />
-		<!-- <property name="expiry" value="10" /> -->
-	</bean>
-
-	<bean class="java.util.ArrayList" id="cookies">
-		<constructor-arg>
-			<list>
-				<bean parent="cookieItem">
-					<property name="name" value="${login.cookie.key}" />
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-	<bean class="com.common.cookie.CookieCipherTools" id="cookieCipherTools">
-		<property value="utf-8" name="charsetName" />
-	</bean>
-	<bean class="com.common.cookie.CookieUtils" id="cookieUtils">
-		<property name="cookies" ref="cookies" />
 	</bean>
 	<bean class="com.common.constants.GlobalContstants" id="global" />
 

@@ -11,9 +11,9 @@
 		<property name="maxIdle" value="${redis.maxIdle}"/>
 	</bean>
 	<bean id="jedis.shardInfo" class="redis.clients.jedis.JedisShardInfo">
-		<constructor-arg index="0" value="192.168.89.47"/>
-		<constructor-arg index="1" value="6379"/>
-		<property name="password" value="redis"/>
+		<constructor-arg index="0" value="${redis.host}"/>
+		<constructor-arg index="1" value="${redis.port}"/>
+		<property name="password" value="${redis.pass}"/>
 	</bean>
 
 	<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">

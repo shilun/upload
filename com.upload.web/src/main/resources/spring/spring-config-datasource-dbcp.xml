@@ -14,10 +14,8 @@
 		<property name="releaseHelperThreads" value="${jdbc.releaseHelperThreads}" />
 	</bean>
 	<bean id="dataSource" parent="abstractDataSource">
-		<property name="jdbcUrl" value="jdbc:mysql://192.168.89.47:3306/upload?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull" />
-		<property name="username" value="upload" />
-		<property name="password" value="111111" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
 	</bean>
-   
-
 </beans>

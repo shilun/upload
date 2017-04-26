@@ -11,8 +11,8 @@ public class UploadUtilTest {
     @Test
     public void testUploadFile() throws IOException {
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("img.60living.net");
-        uploadUtil.setScode("semen");
+        uploadUtil.setDomainName("img.60community.com");
+        uploadUtil.setScode("nidone");
         uploadUtil.setCode("cbd0262ba9c34b12a2a14022e4c33eb5");
         Result<String> uploadFile = uploadUtil.uploadFile(new File("d:/tt.jpg"));
         System.out.println(uploadFile.getModule());
