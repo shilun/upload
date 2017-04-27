@@ -1,4 +1,4 @@
-package com.neworder.upload.rpc;
+package com.common.upload.rpc;
 
 import java.io.File;
 import java.io.FileOutputStream;

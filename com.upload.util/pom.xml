@@ -26,4 +26,17 @@
             <version>RELEASE</version>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>releases</name>
+            <url>http://maven.60living.com/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>Snapshots</id>
+            <name>Snapshots</name>
+            <url>http://maven.60living.com/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>

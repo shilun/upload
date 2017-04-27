@@ -24,7 +24,16 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>com.upload.web</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
     <profiles>
         <profile>
@@ -33,9 +42,9 @@
 
                 <!-- mysql -->
                 <jdbc.url>
-                    <![CDATA[jdbc:mysql://192.168.89.47:3306/passport?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull]]>
+                    <![CDATA[jdbc:mysql://192.168.89.47:3306/upload?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull]]>
                 </jdbc.url>
-                <jdbc.username>passport</jdbc.username>
+                <jdbc.username>upload</jdbc.username>
                 <jdbc.password>111111</jdbc.password>
                 <!-- redis -->
                 <redis.pass>redis</redis.pass>

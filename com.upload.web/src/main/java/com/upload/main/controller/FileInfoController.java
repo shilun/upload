@@ -55,7 +55,7 @@ public class FileInfoController
         }
     }
 
-    @RequestMapping({"{scode}/{file}/{size}.{fileType}"})
+    @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file,@PathVariable String size, @PathVariable String fileType, HttpServletResponse response)
             throws Exception {
         try {
