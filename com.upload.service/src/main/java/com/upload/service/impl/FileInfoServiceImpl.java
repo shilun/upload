@@ -200,7 +200,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             imageProcessor.saveImage(targetFile, null);
         } else {
             String uuid = StringUtils.getUUID();
-            File picDir = new File(pathFile + File.separator + uuid);
+            File picDir =pathFile;
             picDir.mkdirs();
             fileRealName = uuid + "." + extFile;
             targetFile = new File(picDir, fileRealName);
