@@ -56,10 +56,13 @@ public class FileInfoController
     }
 
     @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
-    public void down(@PathVariable String scode, @PathVariable String file,@PathVariable String size, @PathVariable String fileType, HttpServletResponse response)
+    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response)
             throws Exception {
         try {
-            byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType,size);
+            byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
+            if (StringUtils.isNotBlank(name)) {
+                file = name;
+            }
             String typeName = "application/x-download";
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 typeName = "jpg";
@@ -67,6 +70,7 @@ public class FileInfoController
             } else {
                 file = file + "." + fileType;
             }
+
             download(response, data, typeName, file);
         } catch (BizException e) {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -75,10 +79,13 @@ public class FileInfoController
     }
 
     @RequestMapping({"{scode}/{file}.{fileType}"})
-    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, HttpServletResponse response)
+    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response)
             throws Exception {
         try {
-            byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType,"");
+            byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
+            if (StringUtils.isNotBlank(name)) {
+                file = name;
+            }
             String typeName = "application/x-download";
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 typeName = "jpg";
@@ -96,7 +103,7 @@ public class FileInfoController
     @RequestMapping({"/download_erro"})
     @ResponseBody
     public Map<String, Object> downError(final String code, final String message) {
-       return buildMessage(new IExecute() {
+        return buildMessage(new IExecute() {
             public Object getData() {
                 throw new BizException(code, message);
             }
@@ -134,7 +141,7 @@ public class FileInfoController
     @RequestMapping({"/upload"})
     @ResponseBody
     public Map<String, Object> upload(final MultipartFile file, final String key) {
-        return buildMessage (new IExecute() {
+        return buildMessage(new IExecute() {
             public Object getData() {
                 return FileInfoController.this.fileInfoService.upload(file, key);
             }
