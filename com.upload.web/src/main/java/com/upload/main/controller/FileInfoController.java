@@ -42,7 +42,7 @@ public class FileInfoController
             FileTypeEnum typeEnum = (FileTypeEnum) downFile.get("fileType");
             String realName = (String) downFile.get("fileName");
             byte[] data = (byte[]) downFile.get("data");
-
+            
             String typeName = "application/x-download";
             if (typeEnum == FileTypeEnum.PICTURE) {
                 typeName = "jpg";
