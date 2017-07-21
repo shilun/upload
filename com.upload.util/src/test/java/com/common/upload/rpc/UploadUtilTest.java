@@ -1,11 +1,13 @@
 package com.common.upload.rpc;
 
 import com.common.util.Result;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 public class UploadUtilTest {
+    @Ignore
     @Test
     public void testUploadFile() throws IOException {
         UploadUtil uploadUtil = new UploadUtil();
