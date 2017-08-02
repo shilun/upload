@@ -53,6 +53,21 @@
             </properties>
         </profile>
         <profile>
+            <id>test</id>
+            <properties>
+                <!-- mysql -->
+                <jdbc.url>
+                    <![CDATA[jdbc:mysql://192.168.89.52:3306/upload?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull]]>
+                </jdbc.url>
+                <jdbc.username>root</jdbc.username>
+                <jdbc.password>root</jdbc.password>
+                <!-- redis -->
+                <redis.pass>redis</redis.pass>
+                <redis.port>6379</redis.port>
+                <redis.host>192.168.89.52</redis.host>
+            </properties>
+        </profile>
+        <profile>
             <id>pre</id>
             <properties>
             </properties>
