@@ -143,7 +143,7 @@ public class ImageProcessor {
     public Result resize(Image aImage, int aWidth, int aHeight, String taskFile) {
         Result result = new Result();
         // SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
-        BufferedImage image = new BufferedImage(aWidth, aHeight, BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage image = new BufferedImage(aWidth, aHeight, BufferedImage.TYPE_USHORT_555_RGB);
         image.getGraphics().drawImage(aImage, 0, 0, aWidth, aHeight, null); // 绘制缩小后的图
         File destFile = new File(taskFile);
         if (!destFile.getParentFile().exists()) {
