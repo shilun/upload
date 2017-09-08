@@ -52,7 +52,7 @@
         </dependencies>
     </dependencyManagement>
     <build>
-        <finalName>cloud</finalName>
+        <finalName>upload</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
