@@ -7,7 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>com.upload.web</artifactId>
-    <packaging>war</packaging>
     <name>com.upload.web Maven Webapp</name>
     <url>http://maven.apache.org</url>
     <properties>
