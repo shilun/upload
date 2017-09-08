@@ -1,15 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <artifactId>com.upload</artifactId>
-        <groupId>com.60living</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.6.RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>com.upload.web</artifactId>
     <packaging>war</packaging>
     <name>com.upload.web Maven Webapp</name>
     <url>http://maven.apache.org</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.60living</groupId>
@@ -17,65 +21,44 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Dalston.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
+        <finalName>cloud</finalName>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <properties>
-
-                <!-- mysql -->
-                <jdbc.url>
-                    <![CDATA[jdbc:mysql://192.168.89.47:3306/upload?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull]]>
-                </jdbc.url>
-                <jdbc.username>upload</jdbc.username>
-                <jdbc.password>111111</jdbc.password>
-                <!-- redis -->
-                <redis.pass>redis</redis.pass>
-                <redis.port>6379</redis.port>
-                <redis.host>192.168.89.47</redis.host>
-            </properties>
-        </profile>
-        <profile>
-            <id>test</id>
-            <properties>
-                <!-- mysql -->
-                <jdbc.url>
-                    <![CDATA[jdbc:mysql://192.168.89.52:3306/upload?useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull]]>
-                </jdbc.url>
-                <jdbc.username>root</jdbc.username>
-                <jdbc.password>root</jdbc.password>
-                <!-- redis -->
-                <redis.pass>redis</redis.pass>
-                <redis.port>6379</redis.port>
-                <redis.host>192.168.89.52</redis.host>
-            </properties>
-        </profile>
-        <profile>
-            <id>pre</id>
-            <properties>
-            </properties>
-        </profile>
-        <profile>
-            <id>pro</id>
-            <properties>
-            </properties>
-        </profile>
-    </profiles>
 </project>

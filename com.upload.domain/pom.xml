@@ -13,8 +13,14 @@
     <dependencies>
         <dependency>
             <groupId>com.60living</groupId>
-            <artifactId>com.common</artifactId>
+            <artifactId>com.springboot</artifactId>
             <version>1.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-data-mongodb</artifactId>
+                    <groupId>org.springframework.data</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>

@@ -133,6 +133,68 @@ public class ImageProcessor {
         result.setSuccess(true);
         return result;
     }
+    /**
+     *
+     * @param targetFile
+     * @return
+     */
+    public Result saveImage(File targetFile, int maxWidth,int maxHeight) {
+        Result result = new Result();
+        Image tmpImg = null;
+
+        InputStream tmpIn = null;
+        try {
+            tmpIn = new FileInputStream(targetFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Result tmpFlag = null;
+        // 得到源图宽
+        int width = 0;
+        // 得到源图长
+        int height = 0;
+        try {
+            // 构造Image对象
+            tmpImg = ImageIO.read(tmpIn);
+            // 得到源图宽
+            width = tmpImg.getWidth(null);
+            // 得到源图长
+            height = tmpImg.getHeight(null);
+        } catch (Exception e) {
+            logger.error("图片保存大小",e);
+            IOUtils.closeQuietly(tmpIn);
+            throw new ApplicationException("文件上传失败,请上传图片文件", e);
+        }
+
+        int fileSize = ((Long) tmpFlag.get("size")).intValue();
+        int tmpResizeWidth = maxWidth;
+        int tmpResizeHeight = maxHeight;
+
+        String tempFile = targetFile.getPath();
+        String prefix=tempFile.substring(tempFile.lastIndexOf("."));
+        tempFile=tempFile.substring(0,tempFile.lastIndexOf("."));
+        tempFile=tempFile+"_"+tmpResizeWidth+"x"+tmpResizeHeight;
+        tempFile=tempFile+prefix;
+        if (width > height) {
+            // 以宽度为基准，等比例放缩图片
+            int tmpHeight = (int) (height * tmpResizeWidth / width);
+            tmpFlag = resize(tmpImg, tmpResizeWidth, tmpHeight, tempFile);
+        } else {
+            // 以高度为基准，等比例缩放图片
+            int tmpWidth = (int) (width * tmpResizeHeight / height);
+            tmpFlag = resize(tmpImg, tmpWidth, tmpResizeHeight, tempFile);
+        }
+        if (!tmpFlag.isSuccess()) {
+            result.setSuccess(false);
+            return result;
+        } else {
+            fileSize = fileSize + ((Long) tmpFlag.get("size")).intValue();
+        }
+        IOUtils.closeQuietly(tmpIn);
+        result.addDefaultModel("size", fileSize);
+        result.setSuccess(true);
+        return result;
+    }
 
     /**
      * @param aImage
