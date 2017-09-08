@@ -131,6 +131,14 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
                 size = "_" + size;
             }
             file = fileName + File.separator + fileName + size + prefix;
+            String fileRootPath = this.fileRootPath + "/" + scode + "/" + file;
+            File imageFile = new File(fileRootPath);
+            if (!imageFile.exists()) {
+                String sourceFile = this.fileRootPath + "/" + scode + "/" + fileName + File.separator + fileName + prefix;
+                String[] sizeStr = size.split("x");
+                imageProcessor.saveImage(new File(sourceFile), Integer.parseInt(sizeStr[0]), Integer.parseInt(sizeStr[1]));
+            }
+
         }
         String filePath = this.fileRootPath;
         if ((!filePath.endsWith("/")) && (!filePath.endsWith("\\"))) {
@@ -200,7 +208,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             imageProcessor.saveImage(targetFile, null);
         } else {
             String uuid = StringUtils.getUUID();
-            File picDir =pathFile;
+            File picDir = pathFile;
             picDir.mkdirs();
             fileRealName = uuid + "." + extFile;
             targetFile = new File(picDir, fileRealName);
