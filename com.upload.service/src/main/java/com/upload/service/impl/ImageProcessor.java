@@ -166,7 +166,7 @@ public class ImageProcessor {
             throw new ApplicationException("文件上传失败,请上传图片文件", e);
         }
 
-        int fileSize = ((Long) tmpFlag.get("size")).intValue();
+//        int fileSize = ((Long) tmpFlag.get("size")).intValue();
         int tmpResizeWidth = maxWidth;
         int tmpResizeHeight = maxHeight;
 
@@ -184,12 +184,14 @@ public class ImageProcessor {
             int tmpWidth = (int) (width * tmpResizeHeight / height);
             tmpFlag = resize(tmpImg, tmpWidth, tmpResizeHeight, tempFile);
         }
+        int fileSize = ((Long) tmpFlag.get("size")).intValue();
         if (!tmpFlag.isSuccess()) {
             result.setSuccess(false);
             return result;
         } else {
             fileSize = fileSize + ((Long) tmpFlag.get("size")).intValue();
         }
+
         IOUtils.closeQuietly(tmpIn);
         result.addDefaultModel("size", fileSize);
         result.setSuccess(true);

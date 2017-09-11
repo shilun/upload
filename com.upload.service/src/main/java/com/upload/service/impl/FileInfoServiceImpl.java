@@ -135,7 +135,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             File imageFile = new File(fileRootPath);
             if (!imageFile.exists()) {
                 String sourceFile = this.fileRootPath + "/" + scode + "/" + fileName + File.separator + fileName + prefix;
-                String[] sizeStr = size.split("x");
+                String[] sizeStr = size.substring(1).split("x");
                 imageProcessor.saveImage(new File(sourceFile), Integer.parseInt(sizeStr[0]), Integer.parseInt(sizeStr[1]));
             }
 
@@ -201,7 +201,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             fileRealName = uuid + "." + extFile;
             targetFile = new File(picDir, fileRealName);
             try {
-                file.transferTo(targetFile);
+                file.transferTo(targetFile.getAbsoluteFile());
             } catch (Exception e) {
                 throw new BizException("005", "文件上传失败，请重试");
             }

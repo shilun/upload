@@ -143,7 +143,7 @@ public class FileInfoController
     public Map<String, Object> upload(final MultipartFile file, final String key) {
         return buildMessage(new IExecute() {
             public Object getData() {
-                return FileInfoController.this.fileInfoService.upload(file, key);
+                return fileInfoService.upload(file, key);
             }
         });
     }
