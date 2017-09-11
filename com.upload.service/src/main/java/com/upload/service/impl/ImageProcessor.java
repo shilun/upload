@@ -165,8 +165,6 @@ public class ImageProcessor {
             IOUtils.closeQuietly(tmpIn);
             throw new ApplicationException("文件上传失败,请上传图片文件", e);
         }
-
-//        int fileSize = ((Long) tmpFlag.get("size")).intValue();
         int tmpResizeWidth = maxWidth;
         int tmpResizeHeight = maxHeight;
 
