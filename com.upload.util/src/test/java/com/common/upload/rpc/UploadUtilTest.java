@@ -1,6 +1,8 @@
 package com.common.upload.rpc;
 
 import com.common.util.Result;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.Test;
 //import org.junit.Ignore;
 //import org.junit.Test;
 
@@ -8,10 +10,10 @@ import java.io.File;
 import java.io.IOException;
 public class UploadUtilTest {
 //    @Ignore
-//    @Test
+    @Test
     public void testUploadFile() throws IOException {
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("img.60community.com");
+        uploadUtil.setDomainName("localhost");
         uploadUtil.setScode("nidone");
         uploadUtil.setCode("cbd0262ba9c34b12a2a14022e4c33eb5");
         //文件上传
