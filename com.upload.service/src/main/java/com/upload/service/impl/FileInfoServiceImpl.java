@@ -47,6 +47,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
     @Resource
     private FileUploadConfigService fileUploadConfigService;
     private List<String> pics = new ArrayList();
+    private List<String> videos=new ArrayList<>();
     @Resource(name = "fileRootPath")
     private String fileRootPath;
     @Resource
@@ -59,6 +60,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         this.pics.add("png");
         this.pics.add("gif");
         this.pics.add("jpeg");
+        videos.add("mp4");
     }
 
     public AbstractBaseDao<FileInfo> getBaseDao() {
@@ -160,7 +162,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         }
     }
 
-
+    protected  int vedioSize = 1048576;
     public String upload(MultipartFile file, String key) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
         if (StringUtils.isBlank(key)) {
@@ -191,6 +193,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         String extFile = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         File targetFile = null;
         String fileRealName = null;
+        boolean other=true;
         if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
             if (!this.pics.contains(extFile)) {
                 throw new BizException("004", "图片类型不符合规范");
@@ -206,7 +209,9 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
                 throw new BizException("005", "文件上传失败，请重试");
             }
             imageProcessor.saveImage(targetFile, null);
-        } else {
+            other=false;
+        }
+        else {
             String uuid = StringUtils.getUUID();
             File picDir = pathFile;
             picDir.mkdirs();
@@ -219,6 +224,13 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             }
         }
         FileInfo fileInfo = new FileInfo();
+        if(config.getFileType().intValue()==FileTypeEnum.VEDIO.getValue()){
+            fileInfo.setStatus(YesOrNoEnum.NO.getValue());
+            fileInfo.setType(FileTypeEnum.VEDIO.getValue());
+        }
+        else{
+            fileInfo.setStatus(YesOrNoEnum.YES.getValue());
+        }
         fileInfo.setName(file.getOriginalFilename());
         String path = config.getScode() + "/" + fileRealName;
         fileInfo.setPath(path);

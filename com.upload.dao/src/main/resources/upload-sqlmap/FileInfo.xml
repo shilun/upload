@@ -14,20 +14,24 @@
 		<if test="id != null "><![CDATA[AND id =#{id}]]></if>		
 		<if test="name != null "><![CDATA[AND name =#{name}]]></if>		
 		<if test="path != null "><![CDATA[AND path =#{path}]]></if>		
-		<if test="size != null "><![CDATA[AND size =#{size}]]></if>		
+		<if test="size != null "><![CDATA[AND size =#{size}]]></if>
+		<if test="type != null "><![CDATA[AND type =#{type}]]></if>
+		<if test="execCount != null "><![CDATA[AND exec_count =#{execCount}]]></if>
+		<if test="maxExecCount != null "><![CDATA[AND exec_count <=#{maxExecCount}]]></if>
+		<if test="status != null "><![CDATA[AND status =#{status}]]></if>
 		<if test="createTime != null "><![CDATA[AND create_time =#{createTime}]]></if>		
 		<if test="updateTime != null "><![CDATA[AND update_time =#{updateTime}]]></if>
 		<if test="delStatus != null "><![CDATA[AND del_status =#{delStatus}]]></if>
 	</where>
 </sql>
 <sql id="columns">
-	id as id ,name as name ,path as path ,size as size ,create_time as createTime ,update_time as updateTime ,del_status as delStatus
+	id ,name ,path ,size ,type,status,exec_count as execCount,create_time as createTime ,update_time as updateTime ,del_status as delStatus
 </sql>
 <insert id="insert" parameterType="FileInfo" >
   	insert into file_info
-  	(id,name,path,size,create_time,update_time,del_status)
+  	(id,name,path,size,type,status,exec_count,create_time,update_time,del_status)
   	values
-  	(#{id},#{name},#{path},#{size},#{createTime},#{updateTime},#{delStatus})
+  	(#{id},#{name},#{path},#{size},#{type},#{status},#{exec_count},#{createTime},#{updateTime},#{delStatus})
   	<selectKey keyProperty="id" resultType="long" order="AFTER">
 	select last_insert_id() 
 </selectKey> 
@@ -42,8 +46,11 @@
   	<set>
   				<if test="name != null "><![CDATA[ name =#{name},]]></if>		
   				<if test="path != null "><![CDATA[ path =#{path},]]></if>		
-  				<if test="size != null "><![CDATA[ size =#{size},]]></if>		
-  				<if test="createTime != null "><![CDATA[ create_time =#{createTime},]]></if>		
+  				<if test="size != null "><![CDATA[ size =#{size},]]></if>
+				<if test="type != null "><![CDATA[ type =#{type},]]></if>
+				<if test="status != null "><![CDATA[ status =#{status},]]></if>
+				<if test="exec_count != null "><![CDATA[ exec_count =#{execCount},]]></if>
+  				<if test="createTime != null "><![CDATA[ create_time =#{createTime},]]></if>
   				<if test="updateTime != null "><![CDATA[ update_time =#{updateTime},]]></if>		
   				<if test="delStatus != null "><![CDATA[ del_status =#{delStatus},]]></if>
   	</set> 
