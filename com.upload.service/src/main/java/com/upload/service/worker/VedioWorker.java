@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
+@Service
 public class VedioWorker {
     private final static Logger logger = LoggerFactory.getLogger(VedioWorker.class);
     private ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
@@ -44,6 +47,9 @@ public class VedioWorker {
 
     public void doVideoFile(final FileInfo item) {
         Runnable run = () -> {
+            if(!fileRootPath.endsWith("/")){
+                fileRootPath=fileRootPath+"/";
+            }
             String realPath = fileRootPath + item.getPath();
             int index = realPath.lastIndexOf("/");
             String path = realPath.substring(0, index);
@@ -57,6 +63,7 @@ public class VedioWorker {
             }
             if (result) {
                 FileInfo temp = new FileInfo();
+                temp.setId(item.getId());
                 temp.setStatus(YesOrNoEnum.YES.getValue());
                 fileInfoService.up(temp);
             } else {
