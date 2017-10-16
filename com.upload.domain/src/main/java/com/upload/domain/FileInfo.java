@@ -6,10 +6,16 @@ public class FileInfo extends AbstractBaseEntity {
     private String name;
     private String path;
     private Integer size;
-    private Integer exeCount;
+    private Integer execCount;
     private Integer type;
     private Integer status;
+    public Integer getExecCount() {
+        return execCount;
+    }
 
+    public void setExecCount(Integer execCount) {
+        this.execCount = execCount;
+    }
 
     public Integer getType() {
         return type;
@@ -20,9 +26,6 @@ public class FileInfo extends AbstractBaseEntity {
     }
 
     private Integer maxExecCount;
-    public Integer getExeCount() {
-        return exeCount;
-    }
 
     public Integer getMaxExecCount() {
         return maxExecCount;
@@ -30,10 +33,6 @@ public class FileInfo extends AbstractBaseEntity {
 
     public void setMaxExecCount(Integer maxExecCount) {
         this.maxExecCount = maxExecCount;
-    }
-
-    public void setExeCount(Integer exeCount) {
-        this.exeCount = exeCount;
     }
 
     public Integer getStatus() {

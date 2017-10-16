@@ -218,7 +218,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             fileRealName = uuid + "." + extFile;
             targetFile = new File(picDir, fileRealName);
             try {
-                file.transferTo(targetFile);
+                file.transferTo(targetFile.getAbsoluteFile());
             } catch (Exception e) {
                 throw new BizException("005", "文件上传失败，请重试");
             }

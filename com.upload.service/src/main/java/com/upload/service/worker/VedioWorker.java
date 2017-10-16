@@ -62,10 +62,10 @@ public class VedioWorker {
             } else {
                 FileInfo temp = new FileInfo();
                 temp.setStatus(YesOrNoEnum.YES.getValue());
-                if (item.getExeCount() == null) {
-                    temp.setExeCount(1);
+                if (item.getExecCount() == null) {
+                    temp.setExecCount(1);
                 } else {
-                    temp.setExeCount(item.getExeCount() + 1);
+                    temp.setExecCount(item.getExecCount() + 1);
                 }
                 fileInfoService.up(temp);
             }

@@ -31,7 +31,7 @@
   	insert into file_info
   	(id,name,path,size,type,status,exec_count,create_time,update_time,del_status)
   	values
-  	(#{id},#{name},#{path},#{size},#{type},#{status},#{exec_count},#{createTime},#{updateTime},#{delStatus})
+  	(#{id},#{name},#{path},#{size},#{type},#{status},#{execCount},#{createTime},#{updateTime},#{delStatus})
   	<selectKey keyProperty="id" resultType="long" order="AFTER">
 	select last_insert_id() 
 </selectKey> 
@@ -49,7 +49,7 @@
   				<if test="size != null "><![CDATA[ size =#{size},]]></if>
 				<if test="type != null "><![CDATA[ type =#{type},]]></if>
 				<if test="status != null "><![CDATA[ status =#{status},]]></if>
-				<if test="exec_count != null "><![CDATA[ exec_count =#{execCount},]]></if>
+				<if test="execCount != null "><![CDATA[ exec_count =#{execCount},]]></if>
   				<if test="createTime != null "><![CDATA[ create_time =#{createTime},]]></if>
   				<if test="updateTime != null "><![CDATA[ update_time =#{updateTime},]]></if>		
   				<if test="delStatus != null "><![CDATA[ del_status =#{delStatus},]]></if>
