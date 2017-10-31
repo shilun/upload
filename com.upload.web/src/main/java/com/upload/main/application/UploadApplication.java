@@ -12,14 +12,12 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.upload.dao", "com.upload.service", "com.upload.main.controller", "com.common.config"})
+@ComponentScan(basePackages = {"com.upload.dao", "com.upload.service", "com.upload.main", "com.common.config"})
 public class UploadApplication {
     public static void main(String[] args) {
         SpringApplication.run(UploadApplication.class, args);
     }
-
 
     @Value("${app.fileRootPath}")
     private String fileRootPath;

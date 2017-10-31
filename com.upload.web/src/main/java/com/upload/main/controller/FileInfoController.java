@@ -6,8 +6,8 @@ import com.common.web.IExecute;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -17,8 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +34,33 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(value = {"/"}, method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST})
 public class FileInfoController
         extends AbstractController {
+
+
+    public static void main(String[] args) {
+        byte[] encode = Base64.encodeBase64("001".getBytes());
+        String encodes=new String(encode);
+        String encode1 = null;
+       String result=new String(Base64.decodeBase64(encodes.getBytes()));
+        try {
+            encode1 = URLEncoder.encode(encodes, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        System.out.println(encode1);
+    }
+
+    private static final Logger LOGGER = Logger.getLogger(FileInfoController.class);
     @Resource
     private FileInfoService fileInfoService;
+
+
+    @ResponseBody
+    @RequestMapping
+    public String index(){
+        return "<html><body><video src=\"/video/283ba708bade462e9018cf2b973a9200\" controls=\"controls\">\n" +
+                "your browser does not support the video tag\n" +
+                "</video></body></html>";
+    }
 
     @RequestMapping({"/download"})
     public void donwload(String fileName, String key, HttpServletResponse response)
@@ -42,7 +70,7 @@ public class FileInfoController
             FileTypeEnum typeEnum = (FileTypeEnum) downFile.get("fileType");
             String realName = (String) downFile.get("fileName");
             byte[] data = (byte[]) downFile.get("data");
-            
+
             String typeName = "application/x-download";
             if (typeEnum == FileTypeEnum.PICTURE) {
                 typeName = "jpg";
@@ -55,9 +83,39 @@ public class FileInfoController
         }
     }
 
+    @Value("${app.fileRootPath}")
+    private String fileRootPath;
+
+    @RequestMapping({"/video/{file}"})
+    public void down(@PathVariable String file,HttpServletResponse response){
+        String path = fileRootPath + "/video/" + file+"/"+file+".m3u8";
+        File realFile = new File(path);
+        try {
+            if (realFile.exists()) {
+                byte[] bytes = IOUtils.toByteArray(new FileInputStream(realFile));
+                download(response, bytes, "application/vnd.apple.mpegurl", "temp.m3u8");
+            }
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    @RequestMapping({"/video/{file}/{item}.ts"})
+    public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse response)
+            throws Exception {
+        String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
+        File realFile = new File(path);
+        if (realFile.exists()) {
+            downVideo(path,response);
+        }
+    }
     @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response)
             throws Exception {
+        if (StringUtils.endsWithIgnoreCase("scode", "video")) {
+            return;
+        }
         try {
             byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
             if (StringUtils.isNotBlank(name)) {
@@ -75,6 +133,41 @@ public class FileInfoController
         } catch (BizException e) {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
             request.getSession().getServletContext().getRequestDispatcher("/download_erro?code=" + e.getCode() + "&message=" + e.getMessage()).forward(request, response);
+        }
+    }
+
+
+    public void downVideo(String file, HttpServletResponse response) {
+        String agent = getRequest().getHeader("User-Agent").toUpperCase();
+        File realFile = new File(file);
+        InputStream fis = null;
+        OutputStream os = null;
+        try {
+            fis = new BufferedInputStream(new FileInputStream(realFile.getPath()));
+            byte[] buffer;
+            buffer = new byte[fis.available()];
+            fis.read(buffer);
+            response.reset();
+            //由于火狐和其他浏览器显示名称的方式不相同，需要进行不同的编码处理
+            if (agent.indexOf("FIREFOX") != -1) {
+                response.addHeader("Content-Disposition", "attachment;filename=vedio.ts");
+            } else {//其他浏览器
+                response.addHeader("Content-Disposition", "attachment;filename=vedio.ts");
+            }
+            //设置response编码
+            response.setCharacterEncoding("UTF-8");
+            response.addHeader("Content-Length", String.valueOf(realFile.length()));
+            //设置输出文件类型
+            response.setContentType("video/mpeg4");
+            //获取response输出流
+            os = response.getOutputStream();
+            // 输出文件
+            os.write(buffer);
+        } catch (Exception e) {
+            LOGGER.error("输出视频流失败!", e);
+        } finally {
+            IOUtils.closeQuietly(fis);
+            IOUtils.closeQuietly(os);
         }
     }
 
