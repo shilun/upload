@@ -2,20 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.60living</groupId>
-    <artifactId>com.upload</artifactId>
-    <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>com.upload.dao</module>
-        <module>com.upload.domain</module>
-        <module>com.upload.service</module>
-        <module>com.upload.web</module>
-        <module>com.upload.util</module>
-        <module>com.upload.rpc</module>
-    </modules>
+    <version>1.0.0</version>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>com.upload.rpc</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.60living</groupId>
+            <artifactId>com.springboot</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-netflix-core</artifactId>
+            <version>1.3.0.RELEASE</version>
+        </dependency>
+    </dependencies>
     <build>
         <resources>
             <resource>
@@ -40,21 +42,6 @@
                 <version>2.4</version>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>tomcat-maven-plugin</artifactId>
-                <version>1.1</version>
-                <configuration>
-                    <port>80</port>
-                    <path>/</path>
-                    <uriEncoding>UTF-8</uriEncoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.17</version>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.4</version>
@@ -64,12 +51,29 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>releases</name>
+            <url>http://maven.60living.com/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>Snapshots</id>
+            <name>Snapshots</name>
+            <url>http://maven.60living.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

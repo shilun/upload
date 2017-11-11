@@ -9,6 +9,7 @@ public class FileInfo extends AbstractBaseEntity {
     private Integer execCount;
     private Integer type;
     private Integer status;
+    private Integer hlsStatus;
     public Integer getExecCount() {
         return execCount;
     }
@@ -65,5 +66,13 @@ public class FileInfo extends AbstractBaseEntity {
 
     public void setSize(Integer size) {
         this.size = size;
+    }
+
+    public Integer getHlsStatus() {
+        return hlsStatus;
+    }
+
+    public void setHlsStatus(Integer hlsStatus) {
+        this.hlsStatus = hlsStatus;
     }
 }

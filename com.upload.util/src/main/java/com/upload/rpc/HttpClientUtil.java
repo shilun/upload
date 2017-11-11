@@ -1,4 +1,4 @@
-package com.common.upload.rpc;
+package com.upload.rpc;
 
 import java.io.File;
 import java.io.InputStream;

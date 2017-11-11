@@ -224,13 +224,14 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             }
         }
         FileInfo fileInfo = new FileInfo();
-        if(config.getFileType().intValue()==FileTypeEnum.VEDIO.getValue()){
+        if(config.getFileType().intValue()==FileTypeEnum.VIDEO.getValue()){
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
-            fileInfo.setType(FileTypeEnum.VEDIO.getValue());
+            fileInfo.setType(FileTypeEnum.VIDEO.getValue());
         }
         else{
             fileInfo.setStatus(YesOrNoEnum.YES.getValue());
         }
+        fileInfo.setExecCount(0);
         fileInfo.setName(file.getOriginalFilename());
         String path = config.getScode() + "/" + fileRealName;
         fileInfo.setPath(path);

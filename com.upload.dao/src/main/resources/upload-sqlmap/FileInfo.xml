@@ -19,19 +19,20 @@
 		<if test="execCount != null "><![CDATA[AND exec_count =#{execCount}]]></if>
 		<if test="maxExecCount != null "><![CDATA[AND exec_count <=#{maxExecCount}]]></if>
 		<if test="status != null "><![CDATA[AND status =#{status}]]></if>
+		<if test="hlsStatus != null "><![CDATA[AND hls_status =#{hlsStatus}]]></if>
 		<if test="createTime != null "><![CDATA[AND create_time =#{createTime}]]></if>		
 		<if test="updateTime != null "><![CDATA[AND update_time =#{updateTime}]]></if>
 		<if test="delStatus != null "><![CDATA[AND del_status =#{delStatus}]]></if>
 	</where>
 </sql>
 <sql id="columns">
-	id ,name ,path ,size ,type,status,exec_count as execCount,create_time as createTime ,update_time as updateTime ,del_status as delStatus
+	id ,name ,path ,size ,type,hls_status as hlsStatus,exec_count as execCount,create_time as createTime ,update_time as updateTime ,del_status as delStatus
 </sql>
 <insert id="insert" parameterType="FileInfo" >
   	insert into file_info
-  	(id,name,path,size,type,status,exec_count,create_time,update_time,del_status)
+  	(id,name,path,size,type,status,hls_status,exec_count,create_time,update_time,del_status)
   	values
-  	(#{id},#{name},#{path},#{size},#{type},#{status},#{execCount},#{createTime},#{updateTime},#{delStatus})
+  	(#{id},#{name},#{path},#{size},#{type},#{status},#{hlsStatus},#{execCount},#{createTime},#{updateTime},#{delStatus})
   	<selectKey keyProperty="id" resultType="long" order="AFTER">
 	select last_insert_id() 
 </selectKey> 
@@ -49,6 +50,7 @@
   				<if test="size != null "><![CDATA[ size =#{size},]]></if>
 				<if test="type != null "><![CDATA[ type =#{type},]]></if>
 				<if test="status != null "><![CDATA[ status =#{status},]]></if>
+				<if test="hlsStatus != null "><![CDATA[ hls_status =#{hlsStatus},]]></if>
 				<if test="execCount != null "><![CDATA[ exec_count =#{execCount},]]></if>
   				<if test="createTime != null "><![CDATA[ create_time =#{createTime},]]></if>
   				<if test="updateTime != null "><![CDATA[ update_time =#{updateTime},]]></if>		

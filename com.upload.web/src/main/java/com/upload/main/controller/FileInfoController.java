@@ -86,14 +86,14 @@ public class FileInfoController
     @Value("${app.fileRootPath}")
     private String fileRootPath;
 
-    @RequestMapping({"/video/{file}"})
-    public void down(@PathVariable String file,HttpServletResponse response){
-        String path = fileRootPath + "/video/" + file+"/"+file+".m3u8";
+
+    private void downloadPlayerIndex(@PathVariable String file,HttpServletResponse response){
+        String path = fileRootPath + "/video/" + file+"/default.m3u8";
         File realFile = new File(path);
         try {
-            if (realFile.exists()) {
+            if (realFile.getAbsoluteFile().exists()) {
                 byte[] bytes = IOUtils.toByteArray(new FileInputStream(realFile));
-                download(response, bytes, "application/vnd.apple.mpegurl", "temp.m3u8");
+                download(response, bytes, "application/vnd.apple.mpegurl", "default.m3u8");
             }
         }
         catch(Exception e){
@@ -175,6 +175,10 @@ public class FileInfoController
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response)
             throws Exception {
         try {
+            if(fileType.equalsIgnoreCase("m3u8")){
+                downloadPlayerIndex(file,response);
+                return;
+            }
             byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
             if (StringUtils.isNotBlank(name)) {
                 file = name;
