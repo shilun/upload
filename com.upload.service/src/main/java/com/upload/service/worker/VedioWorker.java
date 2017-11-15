@@ -78,17 +78,6 @@ public class VedioWorker {
         };
         fixedThreadPool.execute(run);
     }
-
-    public static void main(String[] args) {
-        VedioWorker work=new VedioWorker();
-        work.fileRootPath="D:/home/upload/fileroot" ;
-        FileInfo fileInfo = new FileInfo();
-        fileInfo.setPath("video/52a25d7f77f64140b5c43104a586b6f4.mp4");
-        work.appDomain="img.60community.com";
-        work.doExecuteIndexFile(fileInfo);
-
-
-    }
     public void doWriteFile(String realPath){
         int indexFile=realPath.lastIndexOf(".");
         int startFile=realPath.lastIndexOf("/");
