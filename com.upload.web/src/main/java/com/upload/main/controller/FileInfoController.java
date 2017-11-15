@@ -175,7 +175,6 @@ public class FileInfoController
                 downloadPlayerIndex(file, response);
                 return;
             }
-
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "jpg";
