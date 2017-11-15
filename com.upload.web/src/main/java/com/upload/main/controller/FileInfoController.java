@@ -5,18 +5,6 @@ import com.common.web.AbstractController;
 import com.common.web.IExecute;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
-
-import java.io.*;
-import java.net.URLEncoder;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +18,14 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
+import java.util.Map;
+
 @Controller
 @RequestMapping(value = {"/"}, method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST})
 public class FileInfoController
@@ -38,9 +34,9 @@ public class FileInfoController
 
     public static void main(String[] args) {
         byte[] encode = Base64.encodeBase64("001".getBytes());
-        String encodes=new String(encode);
+        String encodes = new String(encode);
         String encode1 = null;
-       String result=new String(Base64.decodeBase64(encodes.getBytes()));
+        String result = new String(Base64.decodeBase64(encodes.getBytes()));
         try {
             encode1 = URLEncoder.encode(encodes, "utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -56,7 +52,7 @@ public class FileInfoController
 
     @ResponseBody
     @RequestMapping
-    public String index(){
+    public String index() {
         return "<html><body><video src=\"/video/283ba708bade462e9018cf2b973a9200\" controls=\"controls\">\n" +
                 "your browser does not support the video tag\n" +
                 "</video></body></html>";
@@ -87,16 +83,15 @@ public class FileInfoController
     private String fileRootPath;
 
 
-    private void downloadPlayerIndex(@PathVariable String file,HttpServletResponse response){
-        String path = fileRootPath + "/video/" + file+"/default.m3u8";
+    private void downloadPlayerIndex(@PathVariable String file, HttpServletResponse response) {
+        String path = fileRootPath + "/video/" + file + "/default.m3u8";
         File realFile = new File(path);
         try {
             if (realFile.getAbsoluteFile().exists()) {
                 byte[] bytes = IOUtils.toByteArray(new FileInputStream(realFile));
                 download(response, bytes, "application/vnd.apple.mpegurl", "default.m3u8");
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
 
         }
     }
@@ -107,9 +102,10 @@ public class FileInfoController
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
         File realFile = new File(path);
         if (realFile.exists()) {
-            downVideo(path,response);
+            downVideo(path, response);
         }
     }
+
     @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response)
             throws Exception {
@@ -175,27 +171,31 @@ public class FileInfoController
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response)
             throws Exception {
         try {
-            if(fileType.equalsIgnoreCase("m3u8")){
-                downloadPlayerIndex(file,response);
+            if (fileType.equalsIgnoreCase("m3u8")) {
+                downloadPlayerIndex(file, response);
                 return;
             }
-            byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
-            if (StringUtils.isNotBlank(name)) {
-                file = name;
-            }
-            String typeName = "application/x-download";
+
             if (this.fileInfoService.getPictures().contains(fileType)) {
-                typeName = "jpg";
+                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
+                String typeName = "jpg";
                 file = "";
+                download(response, data, typeName, file);
+                return;
             } else {
                 file = file + "." + fileType;
+                response.setContentType("application/x-download");
+                File currentFile = fileInfoService.httpDown(scode, file + "." + fileType);
+                downloadExistsFile(getRequest(), response, currentFile);
             }
-            download(response, data, typeName, file);
         } catch (BizException e) {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
             request.getSession().getServletContext().getRequestDispatcher("/download_erro?code=" + e.getCode() + "&message=" + e.getMessage()).forward(request, response);
         }
     }
+
+
+
 
     @RequestMapping({"/download_erro"})
     @ResponseBody
@@ -205,6 +205,52 @@ public class FileInfoController
                 throw new BizException(code, message);
             }
         });
+    }
+
+    private void downloadExistsFile(HttpServletRequest request, HttpServletResponse response, File proposeFile) throws Exception,
+            FileNotFoundException {
+        long fSize = proposeFile.length();
+        // 下载
+        response.setContentType("application/x-download");
+        String isoFileName = proposeFile.getName();
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Length", String.valueOf(fSize));
+        response.setHeader("Content-Disposition", "attachment; filename="
+                + isoFileName);
+        long pos = 0;
+        if (null != request.getHeader("Range")) {
+            // 断点续传
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+            pos = Long.parseLong(request.getHeader("Range").replaceAll("bytes=", "").replaceAll("-", ""));
+        }
+        ServletOutputStream out = null;
+        BufferedOutputStream bufferOut = null;
+        InputStream inputStream = null;
+        try {
+             out = response.getOutputStream();
+             bufferOut = new BufferedOutputStream(out);
+             inputStream = new FileInputStream(proposeFile);
+            String contentRange = new StringBuffer("bytes ").append(
+                    new Long(pos).toString()).append("-").append(
+                    new Long(fSize - 1).toString()).append("/").append(
+                    new Long(fSize).toString()).toString();
+            response.setHeader("Content-Range", contentRange);
+            inputStream.skip(pos);
+            byte[] buffer = new byte[5 * 1024];
+            int length = 0;
+            while ((length = inputStream.read(buffer, 0, buffer.length)) != -1) {
+                bufferOut.write(buffer, 0, length);
+            }
+            bufferOut.flush();
+        }
+        catch(Exception e){
+            throw e;
+        }
+        finally {
+            IOUtils.closeQuietly(bufferOut);
+            IOUtils.closeQuietly(out);
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     private void download(HttpServletResponse response, byte[] file, String contentType, String realName)
