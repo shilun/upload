@@ -89,7 +89,7 @@ public class FileInfoController
         try {
             if (realFile.getAbsoluteFile().exists()) {
                 byte[] bytes = IOUtils.toByteArray(new FileInputStream(realFile));
-                download(response, bytes, "application/vnd.apple.mpegurl", "default.m3u8");
+                download(response, bytes, "application/vnd.apple.mpegurl", file + ".m3u8");
             }
         } catch (Exception e) {
 
@@ -194,8 +194,6 @@ public class FileInfoController
     }
 
 
-
-
     @RequestMapping({"/download_erro"})
     @ResponseBody
     public Map<String, Object> downError(final String code, final String message) {
@@ -226,9 +224,9 @@ public class FileInfoController
         BufferedOutputStream bufferOut = null;
         InputStream inputStream = null;
         try {
-             out = response.getOutputStream();
-             bufferOut = new BufferedOutputStream(out);
-             inputStream = new FileInputStream(proposeFile);
+            out = response.getOutputStream();
+            bufferOut = new BufferedOutputStream(out);
+            inputStream = new FileInputStream(proposeFile);
             String contentRange = new StringBuffer("bytes ").append(
                     new Long(pos).toString()).append("-").append(
                     new Long(fSize - 1).toString()).append("/").append(
@@ -241,11 +239,9 @@ public class FileInfoController
                 bufferOut.write(buffer, 0, length);
             }
             bufferOut.flush();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw e;
-        }
-        finally {
+        } finally {
             IOUtils.closeQuietly(bufferOut);
             IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(inputStream);

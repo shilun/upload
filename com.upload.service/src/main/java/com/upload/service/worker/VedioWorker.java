@@ -32,9 +32,9 @@ public class VedioWorker {
     private String appDomain;
     private volatile AtomicBoolean splitRunning = new AtomicBoolean(false);
 
-    private volatile AtomicBoolean indexRunnint=new AtomicBoolean(false);
+    private volatile AtomicBoolean indexRunnint = new AtomicBoolean(false);
 
-    @Scheduled(initialDelay = 1000 * 30, fixedDelay = 1000 * 60+1)
+    @Scheduled(initialDelay = 1000 * 30, fixedDelay = 1000 * 60 + 1)
     public void execute() {
         if (!splitRunning.getAndSet(true)) {
             FileInfo query = new FileInfo();
@@ -49,8 +49,9 @@ public class VedioWorker {
             splitRunning.set(false);
         }
     }
-    @Scheduled(initialDelay = 1000 * 30, fixedDelay = 1000 * 60+1)
-    public void executeIndexFile(){
+
+    @Scheduled(initialDelay = 1000 * 30, fixedDelay = 1000 * 60 + 1)
+    public void executeIndexFile() {
         if (!indexRunnint.getAndSet(true)) {
             FileInfo query = new FileInfo();
             query.setType(FileTypeEnum.VIDEO.getValue());
@@ -64,31 +65,41 @@ public class VedioWorker {
         }
     }
 
-    public void doExecuteIndexFile(final FileInfo item){
-        Runnable run=()->{
-            if(!fileRootPath.endsWith("/")){
-                fileRootPath=fileRootPath+"/";
-            }
-            String realPath = fileRootPath + item.getPath();
-            doWriteFile(realPath);
-            FileInfo temp = new FileInfo();
-            temp.setId(item.getId());
-            temp.setHlsStatus(YesOrNoEnum.YES.getValue());
-            fileInfoService.up(temp);
-        };
-        fixedThreadPool.execute(run);
+    public void doExecuteIndexFile(final FileInfo item) {
+        if (!fileRootPath.endsWith("/")) {
+            fileRootPath = fileRootPath + "/";
+        }
+        String realPath = fileRootPath + item.getPath();
+        doWriteFile(realPath);
+        FileInfo temp = new FileInfo();
+        temp.setId(item.getId());
+        temp.setHlsStatus(YesOrNoEnum.YES.getValue());
+        fileInfoService.up(temp);
+
     }
-    public void doWriteFile(String realPath){
-        int indexFile=realPath.lastIndexOf(".");
-        int startFile=realPath.lastIndexOf("/");
-        String name=realPath.substring(startFile,indexFile);
-        realPath=realPath.substring(0,indexFile)+"/default.m3u8";
+
+    //
+//    public static void main(String[] args) {
+//        VedioWorker work=new VedioWorker();
+//        work.fileRootPath="D:/home/upload/fileroot" ;
+//        FileInfo fileInfo = new FileInfo();
+//        fileInfo.setPath("video/52a25d7f77f64140b5c43104a586b6f4.mp4");
+//        work.appDomain="img.60community.com";
+//        work.doExecuteIndexFile(fileInfo);
+//
+//
+//    }
+    public void doWriteFile(String realPath) {
+        int indexFile = realPath.lastIndexOf(".");
+        int startFile = realPath.lastIndexOf("/");
+        String name = realPath.substring(startFile, indexFile);
+        realPath = realPath.substring(0, indexFile) + "/default.m3u8";
         // 读
         File file = new File(realPath);
-        FileReader in=null ;
-        FileWriter out=null;
-        BufferedReader bufIn=null;
-        CharArrayWriter tempStream=null;
+        FileReader in = null;
+        FileWriter out = null;
+        BufferedReader bufIn = null;
+        CharArrayWriter tempStream = null;
         try {
             in = new FileReader(file);
             bufIn = new BufferedReader(in);
@@ -98,22 +109,20 @@ public class VedioWorker {
             String line = null;
             while ((line = bufIn.readLine()) != null) {
                 // 替换每行中, 符合条件的字符串
-                if(line.endsWith(".ts")){
-                    line = "http://"+appDomain+"/video"+name+"/"+line;
+                if (line.endsWith(".ts")) {
+                    line = "http://" + appDomain + "/video" + name + "/" + line;
                 }
                 tempStream.write(line);
-                line=null;
+                line = null;
                 // 添加换行符
                 tempStream.append(System.getProperty("line.separator"));
             }
             // 将内存中的流 写入 文件
             out = new FileWriter(file);
             tempStream.writeTo(out);
-        }
-        catch (Exception e){
-            logger.error("写文视频索引件失败",e);
-        }
-        finally {
+        } catch (Exception e) {
+            logger.error("写文视频索引件失败", e);
+        } finally {
             IOUtils.closeQuietly(tempStream);
             IOUtils.closeQuietly(in);
             IOUtils.closeQuietly(bufIn);
@@ -123,8 +132,8 @@ public class VedioWorker {
 
     public void doVideoFile(final FileInfo item) {
         Runnable run = () -> {
-            if(!fileRootPath.endsWith("/")){
-                fileRootPath=fileRootPath+"/";
+            if (!fileRootPath.endsWith("/")) {
+                fileRootPath = fileRootPath + "/";
             }
             String realPath = fileRootPath + item.getPath();
             int index = realPath.lastIndexOf("/");
