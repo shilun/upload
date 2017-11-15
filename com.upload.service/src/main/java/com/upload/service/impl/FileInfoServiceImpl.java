@@ -162,6 +162,25 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         }
     }
 
+
+    public File httpDown(String scode, String file) {
+        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{scode});
+        Map<String, Object> result = new HashMap();
+        FileUploadConfig config = (FileUploadConfig) this.redisDbDao.getBySerialize(keyString);
+        if (config == null) {
+            FileUploadConfig query = new FileUploadConfig();
+            query.setScode(scode);
+            config = fileUploadConfigService.findByOne(query);
+            redisDbDao.setBySerialize(keyString, config);
+        }
+
+        String filePath = this.fileRootPath;
+        if ((!filePath.endsWith("/")) && (!filePath.endsWith("\\"))) {
+            filePath = filePath + "/" + scode + "/" + file;
+        }
+        return new File(filePath);
+    }
+
     protected  int vedioSize = 1048576;
     public String upload(MultipartFile file, String key) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
