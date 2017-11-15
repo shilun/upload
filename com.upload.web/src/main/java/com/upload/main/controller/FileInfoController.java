@@ -185,7 +185,7 @@ public class FileInfoController
             } else {
                 file = file + "." + fileType;
                 response.setContentType("application/x-download");
-                File currentFile = fileInfoService.httpDown(scode, file + "." + fileType);
+                File currentFile = fileInfoService.httpDown(scode, file);
                 downloadExistsFile(getRequest(), response, currentFile);
             }
         } catch (BizException e) {
