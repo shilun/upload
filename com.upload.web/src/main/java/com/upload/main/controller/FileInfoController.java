@@ -207,11 +207,18 @@ public class FileInfoController
     private void downloadExistsFile(HttpServletRequest request, HttpServletResponse response, File proposeFile) throws Exception,
             FileNotFoundException {
         long fSize = proposeFile.length();
-        // 下载
-        response.setContentType("application/x-download");
+        long p = 0;
+        long l = 0;
+        l = fSize;
+        if (request.getHeader("Range") != null) //客户端请求的下载的文件块的开始字节
+        {
+            response.setStatus(javax.servlet.http.HttpServletResponse.SC_PARTIAL_CONTENT);//206
+            p = Long.parseLong(request.getHeader("Range").replaceAll("bytes=","").replaceAll("-",""));
+        }
+        response.setContentType("application/octet-stream");
         String isoFileName = proposeFile.getName();
         response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Content-Length", String.valueOf(fSize));
+        response.setHeader("Content-Length",  new Long(l - p).toString());
         response.setHeader("Content-Disposition", "attachment; filename="
                 + isoFileName);
         long pos = 0;
