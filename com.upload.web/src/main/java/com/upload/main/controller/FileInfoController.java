@@ -207,11 +207,7 @@ public class FileInfoController
     private void downloadExistsFile(HttpServletRequest request, HttpServletResponse response, File proposeFile) throws Exception,
             FileNotFoundException {
         java.io.FileInputStream fis = new java.io.FileInputStream(proposeFile);
-
         response.reset();
-
-        response.setHeader("Server", "playyuer@Microshaoft.com");
-
         //告诉客户端允许断点续传多线程连接下载
         //响应的格式是:
         //Accept-Ranges: bytes
@@ -237,7 +233,8 @@ public class FileInfoController
             //从请求中得到开始的字节
             //请求的格式是:
             //Range: bytes=[文件块的开始字节]-
-            p = Long.parseLong(request.getHeader("Range").replaceAll("bytes=","").replaceAll("-",""));
+//            p = Long.parseLong(request.getHeader("Range").replaceAll("bytes=","").replaceAll("-",""));
+            p = Long.parseLong((request.getHeader("Range").replaceAll("bytes=", "").split("-")[0]));
         }
 
         //下载的文件(或块)长度
