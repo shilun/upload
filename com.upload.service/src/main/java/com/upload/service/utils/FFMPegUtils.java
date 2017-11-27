@@ -222,25 +222,7 @@ public class FFMPegUtils {
         if(!dirPath.exists()){
             dirPath.mkdirs();
         }
-        List<SplitInfo> list = new ArrayList<>();
-        String sourcePath = path + file;
-        String totalTime = caculateTime(sourcePath);
-        String[] times = totalTime.split(":");
-        Integer time = 0;
-        time = NumberUtils.toInt(times[0]) * 60;
-        time = time + NumberUtils.toInt(times[1]);
-        time = time * 60 + NumberUtils.toInt(times[2]);
-        File sourceFile = new File(sourcePath);
-        int length = (int) (sourceFile.length() / 1048576);
-        int count = 0;
-        if (length % 10 > 0) {
-            length = length - length % 10;
-            count = length / 10 + 1;
-        } else {
-            count = 1;
-        }
-        time=time/count;
-        String command="ffmpeg -i "+path+file+" -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list "+tmu8File+"/default.m3u8 -segment_time  "+time+" "+tmu8File+"/%03d.ts";
+        String command="ffmpeg -i "+path+file+" -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list "+tmu8File+"/default.m3u8 -segment_time  10 "+tmu8File+"/%03d.ts";
         CmdToolkit.executeConsole(command);
         return true;
     }
