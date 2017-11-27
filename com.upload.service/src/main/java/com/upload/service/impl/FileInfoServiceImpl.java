@@ -246,6 +246,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         if(config.getFileType().intValue()==FileTypeEnum.VIDEO.getValue()){
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
+            fileInfo.setHlsStatus(YesOrNoEnum.NO.getValue());
         }
         else{
             fileInfo.setStatus(YesOrNoEnum.YES.getValue());
