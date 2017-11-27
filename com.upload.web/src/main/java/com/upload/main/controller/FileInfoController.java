@@ -97,7 +97,8 @@ public class FileInfoController
     }
 
     @RequestMapping({"/video/{file}/{item}.ts"})
-    public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse response)
+    public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse
+             response)
             throws Exception {
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
         File realFile = new File(path);
