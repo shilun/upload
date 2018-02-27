@@ -1,4 +1,4 @@
-package com.upload.rpc;
+package com.common.upload.rpc;
 
 import com.common.util.Result;
 import com.common.util.StringUtils;
@@ -15,17 +15,17 @@ public class UploadUtilTest {
 
         System.out.println(StringUtils.getUUID());
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("localhost");
-        uploadUtil.setScode("video");
-        uploadUtil.setCode("cbd0262ba9c34b12a2a14022e4c33eb8");
+        uploadUtil.setDomainName("img.60community.com");
+        uploadUtil.setScode("app");
+        uploadUtil.setCode("cbd0262ba9c34b12a2a14022e4c33eb3");
         //文件上传
-        Result<String> uploadFile = uploadUtil.uploadFile(new File("d:/ss.mp4"));
+        Result<String> uploadFile = uploadUtil.uploadFile(new File("d:/tt.apk"));
         System.out.println(uploadFile.getModule());
 //        //文件下载
         byte[] bytes = uploadUtil.downFile(uploadFile.getModule());
 
         //http下载文件
-       String fileUrl="http://img.60community.com/video/"+uploadFile.getModule();
+       String fileUrl="http://img.60community.com/app/"+uploadFile.getModule();
 
     }
 }
