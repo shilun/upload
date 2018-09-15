@@ -50,13 +50,6 @@ public class FileInfoController
     private FileInfoService fileInfoService;
 
 
-    @ResponseBody
-    @RequestMapping
-    public String index() {
-        return "<html><body><video src=\"/video/283ba708bade462e9018cf2b973a9200\" controls=\"controls\">\n" +
-                "your browser does not support the video tag\n" +
-                "</video></body></html>";
-    }
 
     @RequestMapping({"/download"})
     public void donwload(String fileName, String key, HttpServletResponse response)

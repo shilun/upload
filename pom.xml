@@ -13,7 +13,7 @@
         <module>com.upload.domain</module>
         <module>com.upload.service</module>
         <module>com.upload.web</module>
-        <module>com.upload.util</module>
+        <!--<module>com.upload.util</module>-->
     </modules>
     <build>
         <resources>

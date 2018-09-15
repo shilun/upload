@@ -1,1 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
+# Created by .ignore support plugin (hsz.mobi)
+*.iml
+.idea
+dist
+target
+node_modules

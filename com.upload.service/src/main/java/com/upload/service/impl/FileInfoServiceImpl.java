@@ -1,19 +1,25 @@
 package com.upload.service.impl;
 
 import com.common.exception.BizException;
-import com.common.redis.RedisDbDao;
 import com.common.util.AbstractBaseDao;
 import com.common.util.DefaultBaseService;
 import com.common.util.GlosseryEnumUtils;
 import com.common.util.StringUtils;
 import com.common.util.model.YesOrNoEnum;
+import com.google.common.cache.CacheBuilder;
 import com.upload.dao.FileInfoDao;
 import com.upload.domain.FileInfo;
 import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,13 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements FileInfoService {
@@ -47,11 +49,12 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
     @Resource
     private FileUploadConfigService fileUploadConfigService;
     private List<String> pics = new ArrayList();
-    private List<String> videos=new ArrayList<>();
+    private List<String> videos = new ArrayList<>();
     @Resource(name = "fileRootPath")
     private String fileRootPath;
+
     @Resource
-    private RedisDbDao redisDbDao;
+    private RedisTemplate redisTemplate;
     @Resource
     private ImageProcessor imageProcessor;
 
@@ -62,6 +65,15 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         this.pics.add("jpeg");
         videos.add("mp4");
     }
+
+    private com.google.common.cache.Cache<String, FileUploadConfig> scodeCache = CacheBuilder.newBuilder().initialCapacity(10)
+            .concurrencyLevel(5)
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build();
+    private com.google.common.cache.Cache<String, FileUploadConfig> keyCache = CacheBuilder.newBuilder().initialCapacity(10)
+            .concurrencyLevel(5)
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build();
 
     public AbstractBaseDao<FileInfo> getBaseDao() {
         return this.fileFileInfoDao;
@@ -74,24 +86,17 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
     public Map<String, Object> downFile(String key, String fileName) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
         Map<String, Object> result = new HashMap();
-        FileUploadConfig config = (FileUploadConfig) this.redisDbDao.getBySerialize(keyString);
-        if (config == null) {
-            FileUploadConfig query = new FileUploadConfig();
-            query.setCode(key);
-            query.setDelStatus(YesOrNoEnum.NO.getValue());
-            config = (FileUploadConfig) this.fileUploadConfigService.findByOne(query);
-            this.redisDbDao.setexBySerialize(keyString, 1800, config);
-        }
+        FileUploadConfig config = findConfigByKey(key);
         if (config == null) {
             throw new BizException("002", "业务码标识失败");
         }
         FileInfo fileQuery = new FileInfo();
         fileQuery.setPath(config.getScode() + "/" + fileName);
         keyString = MessageFormat.format("UPLOAD.FILE.PATH.KEY.{0}", new Object[]{config.getScode() + "/" + fileName});
-        FileInfo findByOne = (FileInfo) this.redisDbDao.getBySerialize(keyString);
+        FileInfo findByOne = (FileInfo) this.redisTemplate.opsForValue().get(keyString);
         if (findByOne == null) {
             findByOne = (FileInfo) this.fileFileInfoDao.findByOne(fileQuery);
-            this.redisDbDao.setexBySerialize(keyString, 1800, findByOne);
+            this.redisTemplate.opsForValue().set(keyString, findByOne, 1800);
         }
         if (findByOne == null) {
             logger.error("文件记录未找到 key:" + key + " path:" + config.getScode() + "/" + fileName);
@@ -119,13 +124,8 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
     public byte[] httpDown(String scode, String file, String size) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{scode});
         Map<String, Object> result = new HashMap();
-        FileUploadConfig config = (FileUploadConfig) this.redisDbDao.getBySerialize(keyString);
-        if (config == null) {
-            FileUploadConfig query = new FileUploadConfig();
-            query.setScode(scode);
-            config = fileUploadConfigService.findByOne(query);
-            redisDbDao.setBySerialize(keyString, config);
-        }
+
+        FileUploadConfig config = findConfigByScode(scode);
         if (config.getFileType() == FileTypeEnum.PICTURE.getValue().intValue()) {
             String prefix = file.substring(file.lastIndexOf("."));
             String fileName = file.substring(0, file.lastIndexOf("."));
@@ -166,14 +166,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
     public File httpDown(String scode, String file) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{scode});
         Map<String, Object> result = new HashMap();
-        FileUploadConfig config = (FileUploadConfig) this.redisDbDao.getBySerialize(keyString);
-        if (config == null) {
-            FileUploadConfig query = new FileUploadConfig();
-            query.setScode(scode);
-            config = fileUploadConfigService.findByOne(query);
-            redisDbDao.setBySerialize(keyString, config);
-        }
-
+        FileUploadConfig config = findConfigByScode(scode);
         String filePath = this.fileRootPath;
         if ((!filePath.endsWith("/")) && (!filePath.endsWith("\\"))) {
             filePath = filePath + "/" + scode + "/" + file;
@@ -181,20 +174,47 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         return new File(filePath);
     }
 
-    protected  int vedioSize = 1048576;
+    private FileUploadConfig findConfigByScode(String scode) {
+        try {
+            return scodeCache.get(scode, new Callable<FileUploadConfig>() {
+                @Override
+                public FileUploadConfig call() throws Exception {
+                    FileUploadConfig query = new FileUploadConfig();
+                    query.setScode(scode);
+                    return fileUploadConfigService.findByOne(query);
+                }
+            });
+        } catch (ExecutionException e) {
+            logger.error("FileInfoServiceImpl.downFile.error", e);
+        }
+        return null;
+    }
+
+    private FileUploadConfig findConfigByKey(String key) {
+        try {
+            return scodeCache.get(key, new Callable<FileUploadConfig>() {
+                @Override
+                public FileUploadConfig call() throws Exception {
+                    FileUploadConfig query = new FileUploadConfig();
+                    query.setCode(key);
+                    return fileUploadConfigService.findByOne(query);
+                }
+            });
+        } catch (ExecutionException e) {
+            logger.error("FileInfoServiceImpl.downFile.error", e);
+        }
+        return null;
+    }
+
+    protected int vedioSize = 1048576;
+
     public String upload(MultipartFile file, String key) {
-        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
+        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", key);
         if (StringUtils.isBlank(key)) {
             throw new BizException("001", "业务码不能为空");
         }
-        FileUploadConfig config = (FileUploadConfig) this.redisDbDao.getBySerialize(keyString);
-        if (config == null) {
-            FileUploadConfig query = new FileUploadConfig();
-            query.setCode(key);
-            query.setDelStatus(YesOrNoEnum.NO.getValue());
-            config = (FileUploadConfig) this.fileUploadConfigService.findByOne(query);
-            this.redisDbDao.setexBySerialize(keyString, 1800, config);
-        }
+
+        FileUploadConfig config = findConfigByKey(key);
         if (config == null) {
             throw new BizException("002", "业务码标识失败");
         }
@@ -212,7 +232,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         String extFile = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         File targetFile = null;
         String fileRealName = null;
-        boolean other=true;
+        boolean other = true;
         if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
             if (!this.pics.contains(extFile)) {
                 throw new BizException("004", "图片类型不符合规范");
@@ -228,9 +248,8 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
                 throw new BizException("005", "文件上传失败，请重试");
             }
             imageProcessor.saveImage(targetFile, null);
-            other=false;
-        }
-        else {
+            other = false;
+        } else {
             String uuid = StringUtils.getUUID();
             File picDir = pathFile;
             picDir.mkdirs();
@@ -244,12 +263,11 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             }
         }
         FileInfo fileInfo = new FileInfo();
-        if(config.getFileType().intValue()==FileTypeEnum.VIDEO.getValue()){
+        if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
             fileInfo.setHlsStatus(YesOrNoEnum.NO.getValue());
-        }
-        else{
+        } else {
             fileInfo.setStatus(YesOrNoEnum.YES.getValue());
         }
         fileInfo.setExecCount(0);
