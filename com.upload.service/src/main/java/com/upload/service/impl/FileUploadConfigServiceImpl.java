@@ -1,30 +1,22 @@
 package com.upload.service.impl;
 
 import com.common.exception.BizException;
-import com.common.util.AbstractBaseDao;
-import com.common.util.DefaultBaseService;
-import com.upload.dao.FileUploadConfigDao;
+import com.common.mongo.AbstractMongoService;
 import com.upload.domain.FileUploadConfig;
 import com.upload.service.FileUploadConfigService;
-
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FileUploadConfigServiceImpl
-        extends DefaultBaseService<FileUploadConfig>
-        implements FileUploadConfigService {
+    public class FileUploadConfigServiceImpl  extends AbstractMongoService<FileUploadConfig>    implements FileUploadConfigService {
     private static final long serialVersionUID = 1L;
-    @Resource
-    private FileUploadConfigDao fileUploadConfigDao;
 
-    public AbstractBaseDao<FileUploadConfig> getBaseDao() {
-        return this.fileUploadConfigDao;
+    @Override
+    protected Class getEntityClass() {
+        return FileUploadConfig.class;
     }
 
-    public void save(FileUploadConfig config) {
+    public Long save(FileUploadConfig config) {
         if (config.getId() != null) {
             config.setScode(null);
             config.setCode(null);
@@ -32,7 +24,7 @@ public class FileUploadConfigServiceImpl
         } else {
             FileUploadConfig query = new FileUploadConfig();
             query.setScode(config.getScode());
-            int count = this.fileUploadConfigDao.queryCount(query);
+            Long count = queryCount(query);
             if (count > 0) {
                 throw new BizException("简码重复");
             }
@@ -52,6 +44,6 @@ public class FileUploadConfigServiceImpl
                 throw new BizException("文件类型不能为空！");
             }
         }
-        super.save(config);
+        return super.save(config);
     }
 }

@@ -1,5 +1,6 @@
 package com.upload.service;
 
+import com.common.mongo.MongoService;
 import com.common.util.AbstractBaseService;
 import com.upload.domain.FileInfo;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
 public abstract interface FileInfoService
-  extends AbstractBaseService<FileInfo>
+  extends MongoService<FileInfo>
 {
   public abstract Map<String, Object> downFile(String paramString1, String paramString2);
   

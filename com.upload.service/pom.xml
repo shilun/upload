@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.60living</groupId>
-            <artifactId>com.upload.dao</artifactId>
+            <artifactId>com.upload.domain</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

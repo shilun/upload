@@ -1,13 +1,12 @@
 package com.upload.service.impl;
 
 import com.common.exception.BizException;
+import com.common.mongo.AbstractMongoService;
 import com.common.util.AbstractBaseDao;
-import com.common.util.DefaultBaseService;
 import com.common.util.GlosseryEnumUtils;
 import com.common.util.StringUtils;
 import com.common.util.model.YesOrNoEnum;
 import com.google.common.cache.CacheBuilder;
-import com.upload.dao.FileInfoDao;
 import com.upload.domain.FileInfo;
 import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
@@ -15,6 +14,7 @@ import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements FileInfoService {
+public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implements FileInfoService {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(FileInfoServiceImpl.class);
     public static final String UPLOAD_ERROR_BIZ_KEY_EMPTY = "001";
@@ -44,13 +44,17 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
     public static final String UPLOAD_ERROR = "005";
     public static final String DOWNLOAD_ERROR = "006";
     public static final String DOWNLOAD_FILE_NOT_FOUND = "007";
-    @Resource
-    private FileInfoDao fileFileInfoDao;
+
+    @Override
+    protected Class getEntityClass() {
+        return FileInfo.class;
+    }
+
     @Resource
     private FileUploadConfigService fileUploadConfigService;
     private List<String> pics = new ArrayList();
     private List<String> videos = new ArrayList<>();
-    @Resource(name = "fileRootPath")
+    @Value("${app.fileRootPath}")
     private String fileRootPath;
 
     @Resource
@@ -75,13 +79,6 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
             .expireAfterWrite(1, TimeUnit.HOURS)
             .build();
 
-    public AbstractBaseDao<FileInfo> getBaseDao() {
-        return this.fileFileInfoDao;
-    }
-
-    public Long add(FileInfo entity) {
-        throw new RuntimeException("调用添加失败");
-    }
 
     public Map<String, Object> downFile(String key, String fileName) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
@@ -95,7 +92,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         keyString = MessageFormat.format("UPLOAD.FILE.PATH.KEY.{0}", new Object[]{config.getScode() + "/" + fileName});
         FileInfo findByOne = (FileInfo) this.redisTemplate.opsForValue().get(keyString);
         if (findByOne == null) {
-            findByOne = (FileInfo) this.fileFileInfoDao.findByOne(fileQuery);
+            findByOne = (FileInfo) this.findByOne(fileQuery);
             this.redisTemplate.opsForValue().set(keyString, findByOne, 1800);
         }
         if (findByOne == null) {
@@ -275,7 +272,7 @@ public class FileInfoServiceImpl extends DefaultBaseService<FileInfo> implements
         String path = config.getScode() + "/" + fileRealName;
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
-        this.fileFileInfoDao.add(fileInfo);
+        this.insert(fileInfo);
         return fileRealName;
     }
 

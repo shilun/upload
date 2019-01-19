@@ -17,6 +17,7 @@ public class FileUploadConfig
   private Integer httpDown;
 
 
+
   public String getName() {
     return name;
   }

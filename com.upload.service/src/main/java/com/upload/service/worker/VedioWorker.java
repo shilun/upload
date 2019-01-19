@@ -74,21 +74,10 @@ public class VedioWorker {
         FileInfo temp = new FileInfo();
         temp.setId(item.getId());
         temp.setHlsStatus(YesOrNoEnum.YES.getValue());
-        fileInfoService.up(temp);
+        fileInfoService.save(temp);
 
     }
 
-    //
-//    public static void main(String[] args) {
-//        VedioWorker work=new VedioWorker();
-//        work.fileRootPath="D:/home/upload/fileroot" ;
-//        FileInfo fileInfo = new FileInfo();
-//        fileInfo.setPath("video/52a25d7f77f64140b5c43104a586b6f4.mp4");
-//        work.appDomain="img.60community.com";
-//        work.doExecuteIndexFile(fileInfo);
-//
-//
-//    }
     public void doWriteFile(String realPath) {
         int indexFile = realPath.lastIndexOf(".");
         int startFile = realPath.lastIndexOf("/");
@@ -151,7 +140,7 @@ public class VedioWorker {
                 temp.setId(item.getId());
                 temp.setStatus(YesOrNoEnum.YES.getValue());
                 temp.setHlsStatus(YesOrNoEnum.NO.getValue());
-                fileInfoService.up(temp);
+                fileInfoService.save(temp);
             } else {
                 FileInfo temp = new FileInfo();
                 temp.setStatus(YesOrNoEnum.YES.getValue());
@@ -160,7 +149,7 @@ public class VedioWorker {
                 } else {
                     temp.setExecCount(item.getExecCount() + 1);
                 }
-                fileInfoService.up(temp);
+                fileInfoService.save(temp);
             }
         };
         fixedThreadPool.execute(run);

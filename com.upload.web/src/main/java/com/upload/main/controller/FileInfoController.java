@@ -32,19 +32,6 @@ public class FileInfoController
         extends AbstractController {
 
 
-    public static void main(String[] args) {
-        byte[] encode = Base64.encodeBase64("001".getBytes());
-        String encodes = new String(encode);
-        String encode1 = null;
-        String result = new String(Base64.decodeBase64(encodes.getBytes()));
-        try {
-            encode1 = URLEncoder.encode(encodes, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.out.println(encode1);
-    }
-
     private static final Logger LOGGER = Logger.getLogger(FileInfoController.class);
     @Resource
     private FileInfoService fileInfoService;
@@ -85,7 +72,7 @@ public class FileInfoController
                 download(response, bytes, "application/vnd.apple.mpegurl", file + ".m3u8");
             }
         } catch (Exception e) {
-
+            LOGGER.error("downloadPlayerIndex.error",e);
         }
     }
 
@@ -289,6 +276,7 @@ public class FileInfoController
                 response.setHeader("Content-Length", String.valueOf(file.length));
             }
             bis = new ByteArrayInputStream(file);
+
             bos = new BufferedOutputStream(response.getOutputStream());
             byte[] buff = new byte[2048];
             int bytesRead;
