@@ -4,6 +4,7 @@ package com.upload.service.impl;
 import com.common.exception.ApplicationException;
 import com.common.util.Result;
 import com.upload.util.constants.SystemConstants;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -69,7 +70,7 @@ public class ImageProcessor {
         try {
             tmpIn = new FileInputStream(targetFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("读取图片失败",e);
         }
         Result tmpFlag = null;
         // 得到源图宽
@@ -91,7 +92,7 @@ public class ImageProcessor {
          * 存放原图
          */
 
-        tmpFlag = resize(tmpImg, width, height, targetFile.getPath());
+        tmpFlag = resize(targetFile, width, height, targetFile.getPath());
 
         int fileSize = ((Long) tmpFlag.get("size")).intValue();
         /**
@@ -112,11 +113,11 @@ public class ImageProcessor {
                     if (width > height) {
                         // 以宽度为基准，等比例放缩图片
                         int tmpHeight = (int) (height * tmpResizeWidth / width);
-                        tmpFlag = resize(tmpImg, tmpResizeWidth, tmpHeight, tempFile);
+                        tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
                     } else {
                         // 以高度为基准，等比例缩放图片
                         int tmpWidth = (int) (width * tmpResizeHeight / height);
-                        tmpFlag = resize(tmpImg, tmpWidth, tmpResizeHeight, tempFile);
+                        tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile);
                     }
                     if (!tmpFlag.isSuccess()) {
                         result.setSuccess(false);
@@ -176,11 +177,19 @@ public class ImageProcessor {
         if (width > height) {
             // 以宽度为基准，等比例放缩图片
             int tmpHeight = (int) (height * tmpResizeWidth / width);
-            tmpFlag = resize(tmpImg, tmpResizeWidth, tmpHeight, tempFile);
+            if(tmpHeight<height){
+                tmpHeight=height;
+                tmpResizeWidth=width;
+            }
+            tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
         } else {
             // 以高度为基准，等比例缩放图片
             int tmpWidth = (int) (width * tmpResizeHeight / height);
-            tmpFlag = resize(tmpImg, tmpWidth, tmpResizeHeight, tempFile);
+            if(tmpWidth<width){
+                tmpResizeHeight=height;
+                tmpWidth=width;
+            }
+            tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile);
         }
         int fileSize = ((Long) tmpFlag.get("size")).intValue();
         if (!tmpFlag.isSuccess()) {
@@ -197,33 +206,27 @@ public class ImageProcessor {
     }
 
     /**
-     * @param aImage
+     * @param sourceFile
      * @param aWidth
      * @param aHeight
      * @return
      */
-    public Result resize(Image aImage, int aWidth, int aHeight, String taskFile) {
+    public Result resize(File sourceFile, int aWidth, int aHeight, String taskFile) {
         Result result = new Result();
         // SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
-        BufferedImage image = new BufferedImage(aWidth, aHeight, BufferedImage.TYPE_USHORT_555_RGB);
-        image.getGraphics().drawImage(aImage, 0, 0, aWidth, aHeight, null); // 绘制缩小后的图
         File destFile = new File(taskFile);
         if (!destFile.getParentFile().exists()) {
             destFile.getParentFile().mkdirs();
         }
-        FileOutputStream out = null;
         try {
-            out = new FileOutputStream(destFile);
-            ImageIO.write(image, JPG, out);
+            Thumbnails.of(sourceFile).size(aWidth,aHeight).toFile(taskFile);
             result.addDefaultModel("size", destFile.length());
         } catch (IOException e) {
-            IOUtils.closeQuietly(out);
             logger.error("上传文件失", e);
             result.setSuccess(false);
             result.setResultCode(e.getMessage());
             throw new ApplicationException("文件上传失败", e);
         } finally {
-            IOUtils.closeQuietly(out);
             if (this.storyAliyun) {
                 destFile.delete();
             }
