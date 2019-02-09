@@ -5,10 +5,10 @@ import com.common.web.AbstractController;
 import com.common.web.IExecute;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,11 +19,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.Map;
 
 @Controller
@@ -32,7 +30,7 @@ public class FileInfoController
         extends AbstractController {
 
 
-    private static final Logger LOGGER = Logger.getLogger(FileInfoController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileInfoController.class);
     @Resource
     private FileInfoService fileInfoService;
 

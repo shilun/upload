@@ -12,7 +12,8 @@ import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implements FileInfoService {
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(FileInfoServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileInfoServiceImpl.class);
     public static final String UPLOAD_ERROR_BIZ_KEY_EMPTY = "001";
     public static final String UPLOAD_ERROR_BIZ_KEY_ERROR = "002";
     public static final String UPLOAD_ERROR_BIZ_FILE_EMPTY = "003";

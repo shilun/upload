@@ -6,7 +6,8 @@ import com.common.util.Result;
 import com.upload.util.constants.SystemConstants;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,7 +37,7 @@ public class ImageProcessor {
     /**
      * 日志对象
      */
-    private Logger logger = Logger.getLogger(ImageProcessor.class);
+    private Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
 
     @Resource
     private SystemConstants systemConstants;

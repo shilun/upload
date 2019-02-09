@@ -1,13 +1,12 @@
 package com.upload.service;
 
 import com.common.mongo.MongoService;
-import com.common.util.AbstractBaseService;
 import com.upload.domain.FileInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.multipart.MultipartFile;
 
 public abstract interface FileInfoService
   extends MongoService<FileInfo>
