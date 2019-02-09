@@ -2,7 +2,6 @@ package com.upload.service.impl;
 
 import com.common.exception.BizException;
 import com.common.mongo.AbstractMongoService;
-import com.common.util.AbstractBaseDao;
 import com.common.util.GlosseryEnumUtils;
 import com.common.util.StringUtils;
 import com.common.util.model.YesOrNoEnum;
