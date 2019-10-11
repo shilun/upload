@@ -4,6 +4,7 @@ import com.common.util.AbstractBaseEntity;
 import java.io.Serializable;
 import java.util.Date;
 
+
 public class FileUploadConfig
   extends AbstractBaseEntity
   implements Serializable
