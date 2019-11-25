@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
         return FileUploadConfig.class;
     }
 
-    public Long save(FileUploadConfig config) {
+    public void save(FileUploadConfig config) {
         if (config.getId() != null) {
             config.setScode(null);
             config.setCode(null);
@@ -44,6 +44,6 @@ import org.springframework.stereotype.Service;
                 throw new BizException("文件类型不能为空！");
             }
         }
-        return super.save(config);
+        super.save(config);
     }
 }
