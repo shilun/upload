@@ -1,10 +1,13 @@
 package com.upload.service.utils;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import java.io.File;
+import java.io.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FFMPegUtils {
@@ -40,6 +43,7 @@ public class FFMPegUtils {
         time = time * 60 + NumberUtils.toInt(times[2]);
         return time;
     }
+
     public static List<SplitInfo> doSplit(String source) {
         List<SplitInfo> list = new ArrayList<>();
         String totalTime = caculateTime(source);
@@ -61,7 +65,7 @@ public class FFMPegUtils {
         int currentTime = 0;
         while (currentTime < time) {
             SplitInfo info = new SplitInfo();
-            int oldCurrent=currentTime;
+            int oldCurrent = currentTime;
             info.setStartTime(buildTime(currentTime));
             currentTime = currentTime + splitTime;
             if (currentTime > time) {
@@ -75,6 +79,7 @@ public class FFMPegUtils {
         return list;
 
     }
+
     public static List<SplitInfo> doSplitDuration(String source) {
         List<SplitInfo> list = new ArrayList<>();
         String totalTime = caculateTime(source);
@@ -96,11 +101,11 @@ public class FFMPegUtils {
         int currentTime = 0;
         while (currentTime < time) {
             SplitInfo info = new SplitInfo();
-            int oldCurrent=currentTime;
+            int oldCurrent = currentTime;
             info.setStartTime(buildTime(currentTime));
             currentTime = currentTime + splitTime;
             if (currentTime > time) {
-                info.setEndTime(String.valueOf(time-oldCurrent));
+                info.setEndTime(String.valueOf(time - oldCurrent));
             } else {
                 info.setEndTime(String.valueOf(splitTime));
             }
@@ -124,9 +129,8 @@ public class FFMPegUtils {
             minute = String.valueOf((time - time % 60) / 60);
             time = time % 60;
             second = String.valueOf(time);
-        }
-        else{
-            second=String.valueOf(time);
+        } else {
+            second = String.valueOf(time);
         }
         while (hour.length() < 1) {
             hour = "0" + hour;
@@ -149,10 +153,11 @@ public class FFMPegUtils {
 
     /**
      * 根据开始时间,结束时间截取
+     *
      * @param sourcePath 原视频
      * @param outputPath 输出视频，输出视频的目录必须存在！！！！
-     * @param start 开始截取时间
-     * @param end 结束时间
+     * @param start      开始截取时间
+     * @param end        结束时间
      */
     public static void cutWithStartAndEnd(String sourcePath, String outputPath, String start, String end) {
 
@@ -180,10 +185,11 @@ public class FFMPegUtils {
 
     /**
      * 根据开始时间,时长截取
+     *
      * @param sourcePath 原视频路径
      * @param outputPath 输出视频，输出视频的目录必须存在！！！！
-     * @param start 开始截取时间
-     * @param duration 时长
+     * @param start      开始截取时间
+     * @param duration   时长
      */
     public static void cutWithDuration(String sourcePath, String outputPath, String start, String duration) {
 
@@ -211,19 +217,50 @@ public class FFMPegUtils {
 
     }
 
-    public static boolean  split(String path,String file){
-        String[] extFile=file.split("\\.");
-        File dirPath=new File(path+extFile[0]);
-        if(!dirPath.exists()){
+    public static boolean split(String path, String file) {
+        String[] extFile = file.split("\\.");
+        File dirPath = new File(path + extFile[0]);
+        if (!dirPath.exists()) {
             dirPath.mkdirs();
         }
-        String tmu8File=path+extFile[0];
-        dirPath=new File(tmu8File);
-        if(!dirPath.exists()){
+        String tmu8File = path + extFile[0];
+        dirPath = new File(tmu8File);
+        if (!dirPath.exists()) {
             dirPath.mkdirs();
         }
-        String command="ffmpeg -i "+path+file+" -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list "+tmu8File+"/default.m3u8 -segment_time  3 "+tmu8File+"/%03d.ts";
-        CmdToolkit.executeConsole(command);
+        String command = "ffmpeg -i " + path + file + " -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
+
+        CmdToolkit.executeConsole(command,true);
         return true;
     }
+
+    public static void doExportImage(String path, String fileName) {
+        String realFile = path + fileName;
+        path = path + fileName.substring(0, fileName.indexOf("."));
+        String file = fileName;
+        String command = "ffmpeg -i " + realFile + " -r 1 -t 4 " + path + "/image-%1d.jpeg";
+        CmdToolkit.executeConsole(command);
+        Collection<File> files = FileUtils.listFiles(new File(path), FileFilterUtils.suffixFileFilter("jpeg"), null);
+        File maxFile = null;
+        for (File item : files) {
+            if (maxFile == null) {
+                maxFile = item;
+            }
+            if (item.length() > maxFile.length()) {
+                maxFile = item;
+            }
+        }
+        for (File item : files) {
+            if (item != maxFile) {
+                item.delete();
+            }
+        }
+        maxFile.renameTo(new File(maxFile.getParentFile().getPath()+"/default.jpeg"));
+    }
+
+    public static void main(String[] args) {
+        doExportImage("e:/tt/", "out.mp4");
+    }
+
+
 }

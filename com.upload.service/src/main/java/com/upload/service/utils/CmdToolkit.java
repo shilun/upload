@@ -5,10 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -24,7 +21,7 @@ public final class CmdToolkit {
     private CmdToolkit() {
     }
 
-    static void executeStream(List<String> result, InputStream inputStream, CountDownLatch latch) {
+    static void executeStream(List<String> result, InputStream inputStream) {
         BufferedReader br1 = new BufferedReader(new InputStreamReader(inputStream));
         try {
             String line1 = null;
@@ -34,11 +31,10 @@ public final class CmdToolkit {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ApplicationException(e);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
-        latch.countDown();
     }
 
     /**
@@ -49,30 +45,30 @@ public final class CmdToolkit {
      * @throws IOException
      */
     public static List<String> executeConsole(String cmd) {
-
         final List<String> result = new ArrayList<String>();
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmd);
-            final InputStream is1 = p.getInputStream();
-            final InputStream is2 = p.getErrorStream();
-            final CountDownLatch latch = new CountDownLatch(2);
-            new Thread() {
-                public void run() {
-                    executeStream(result, is1, latch);
-                }
-            }.start();
-            new Thread() {
-                public void run() {
-                    executeStream(result, is2, latch);
-                }
-            }.start();
+            executeStream(result, p.getErrorStream());
+            executeStream(result, p.getInputStream());
             p.waitFor();
+            int i = p.exitValue();
+            if (i != 0) {
+                throw new ApplicationException("");
+            }
+
             p.destroy();
-            latch.await();
         } catch (Exception e) {
-            throw new ApplicationException("exec cmd error");
+            throw new ApplicationException("exec cmd error", e);
         }
         return result;
+    }
+
+
+    public static String toString(OutputStream out) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos = (ByteArrayOutputStream) out;
+        ByteArrayInputStream swapStream = new ByteArrayInputStream(baos.toByteArray());
+        return swapStream.toString();
     }
 }

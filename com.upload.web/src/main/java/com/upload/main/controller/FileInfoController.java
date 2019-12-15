@@ -1,6 +1,8 @@
 package com.upload.main.controller;
 
 import com.common.exception.BizException;
+import com.common.upload.UploadUtil;
+import com.common.util.Result;
 import com.common.web.AbstractController;
 import com.common.web.IExecute;
 import com.upload.domain.model.FileTypeEnum;
@@ -34,7 +36,6 @@ public class FileInfoController
     private static final Logger LOGGER = LoggerFactory.getLogger(FileInfoController.class);
     @Resource
     private FileInfoService fileInfoService;
-
 
 
     @RequestMapping({"/download"})
@@ -71,13 +72,13 @@ public class FileInfoController
                 download(response, bytes, "application/vnd.apple.mpegurl", file + ".m3u8");
             }
         } catch (Exception e) {
-            LOGGER.error("downloadPlayerIndex.error",e);
+            LOGGER.error("downloadPlayerIndex.error", e);
         }
     }
 
     @RequestMapping({"/video/{file}/{item}.ts"})
     public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse
-             response)
+            response)
             throws Exception {
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
         File realFile = new File(path);
@@ -297,5 +298,21 @@ public class FileInfoController
                 return fileInfoService.upload(file, key);
             }
         });
+    }
+    @RequestMapping("/index")
+    @ResponseBody
+    public Map<String, Object> index() {
+        fileInfoService.doVedioSplit();
+        return null;
+    }
+
+
+    public static void main(String[] args) {
+        UploadUtil uploadUtil = new UploadUtil();
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
+        uploadUtil.setScode("video");
+        uploadUtil.setDomainName("localhost");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("E:\\tt\\out.mp4"));
+        System.out.println(stringResult);
     }
 }

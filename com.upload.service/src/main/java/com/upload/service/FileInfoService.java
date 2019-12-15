@@ -19,4 +19,6 @@ public abstract interface FileInfoService
   public abstract String upload(MultipartFile paramMultipartFile, String paramString);
   
   public abstract List<String> getPictures();
+
+  public void doVedioSplit();
 }

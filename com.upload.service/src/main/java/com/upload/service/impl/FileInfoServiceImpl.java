@@ -11,10 +11,15 @@ import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
+import com.upload.service.utils.FFMPegUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,9 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Service
 public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implements FileInfoService {
@@ -62,6 +65,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     @Resource
     private ImageProcessor imageProcessor;
 
+    @Resource(name = "asyncWorkerExecutor")
+    private Executor executor;
+
     public FileInfoServiceImpl() {
         this.pics.add("jpg");
         this.pics.add("png");
@@ -79,6 +85,15 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             .expireAfterWrite(1, TimeUnit.HOURS)
             .build();
 
+    @Override
+    public void doVedioSplit() {
+        Criteria criteria = Criteria.where("type").is(FileTypeEnum.VIDEO.getValue()).and("status").is(YesOrNoEnum.NO.getValue()).and("hlsStatus").is(YesOrNoEnum.NO.getValue());
+        Query query = new Query(criteria);
+        Page<FileInfo> fileInfos = queryByPage(query, PageRequest.of(0, 100));
+        for (FileInfo item : fileInfos.getContent()) {
+            doVideoFile(item);
+        }
+    }
 
     public Map<String, Object> downFile(String key, String fileName) {
         String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
@@ -278,5 +293,59 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
     public List<String> getPictures() {
         return this.pics;
+    }
+
+    private void doVideoFile(final FileInfo item) {
+        Runnable run = () -> {
+            if (!fileRootPath.endsWith("/")) {
+                fileRootPath = fileRootPath + "/";
+            }
+            String realPath = fileRootPath + item.getPath();
+            int index = realPath.lastIndexOf("/");
+            String path = realPath.substring(0, index);
+            String file = realPath.substring(index);
+            boolean result = true;
+            try {
+                CountDownLatch countDownLatch = new CountDownLatch(2);
+
+                executor.execute(() -> {
+                    try {
+                        FFMPegUtils.doExportImage(path, file);
+                    } catch (Exception e) {
+                        logger.error("ffmpeg.exportImage.error", e);
+                    }
+                    countDownLatch.countDown();
+                });
+                executor.execute(() -> {
+                    try {
+                        FFMPegUtils.split(path, file);
+                    } catch (Exception e) {
+                        logger.error("ffmpeg.split.error", e);
+                    }
+                    countDownLatch.countDown();
+                });
+                countDownLatch.await();
+                new File(realPath).delete();
+            } catch (Exception e) {
+                logger.error("执行文件转换失败!", e);
+            }
+            if (result) {
+                FileInfo temp = new FileInfo();
+                temp.setId(item.getId());
+                temp.setStatus(YesOrNoEnum.YES.getValue());
+                temp.setHlsStatus(YesOrNoEnum.NO.getValue());
+                save(temp);
+            } else {
+                FileInfo temp = new FileInfo();
+                temp.setStatus(YesOrNoEnum.YES.getValue());
+                if (item.getExecCount() == null) {
+                    temp.setExecCount(1);
+                } else {
+                    temp.setExecCount(item.getExecCount() + 1);
+                }
+                save(temp);
+            }
+        };
+        executor.execute(run);
     }
 }
