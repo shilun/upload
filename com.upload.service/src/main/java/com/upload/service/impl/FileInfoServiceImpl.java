@@ -245,11 +245,12 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         File targetFile = null;
         String fileRealName = null;
         boolean other = true;
+        String uuid = StringUtils.getUUID();
         if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
             if (!this.pics.contains(extFile)) {
                 throw new BizException("004", "图片类型不符合规范");
             }
-            String uuid = StringUtils.getUUID();
+
             File picDir = new File(pathFile + File.separator + uuid);
             picDir.mkdirs();
             fileRealName = uuid + "." + extFile;
@@ -262,7 +263,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             imageProcessor.saveImage(targetFile, null);
             other = false;
         } else {
-            String uuid = StringUtils.getUUID();
             File picDir = pathFile;
             picDir.mkdirs();
             fileRealName = uuid + "." + extFile;
@@ -276,6 +276,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         }
         FileInfo fileInfo = new FileInfo();
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
+            fileRealName = uuid + "/default.m3u8";
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
             fileInfo.setHlsStatus(YesOrNoEnum.NO.getValue());
@@ -285,6 +286,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         fileInfo.setExecCount(0);
         fileInfo.setName(file.getOriginalFilename());
         String path = config.getScode() + "/" + fileRealName;
+
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
         this.insert(fileInfo);
@@ -301,50 +303,17 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 fileRootPath = fileRootPath + "/";
             }
             String realPath = fileRootPath + item.getPath();
+            realPath = realPath.replace("/default.m3u8", ".mp4");
             int index = realPath.lastIndexOf("/");
             String path = realPath.substring(0, index);
             String file = realPath.substring(index);
-            boolean result = true;
-            try {
-                CountDownLatch countDownLatch = new CountDownLatch(2);
-
-                executor.execute(() -> {
-                    try {
-                        FFMPegUtils.doExportImage(path, file);
-                    } catch (Exception e) {
-                        logger.error("ffmpeg.exportImage.error", e);
-                    }
-                    countDownLatch.countDown();
-                });
-                executor.execute(() -> {
-                    try {
-                        FFMPegUtils.split(path, file);
-                    } catch (Exception e) {
-                        logger.error("ffmpeg.split.error", e);
-                    }
-                    countDownLatch.countDown();
-                });
-                countDownLatch.await();
-                new File(realPath).delete();
-            } catch (Exception e) {
-                logger.error("执行文件转换失败!", e);
-            }
-            if (result) {
-                FileInfo temp = new FileInfo();
-                temp.setId(item.getId());
-                temp.setStatus(YesOrNoEnum.YES.getValue());
-                temp.setHlsStatus(YesOrNoEnum.NO.getValue());
-                save(temp);
-            } else {
-                FileInfo temp = new FileInfo();
-                temp.setStatus(YesOrNoEnum.YES.getValue());
-                if (item.getExecCount() == null) {
-                    temp.setExecCount(1);
-                } else {
-                    temp.setExecCount(item.getExecCount() + 1);
-                }
-                save(temp);
-            }
+            FFMPegUtils.doExportImage(path, file);
+            FFMPegUtils.split(path, file);
+            FileInfo temp = new FileInfo();
+            temp.setId(item.getId());
+            temp.setStatus(YesOrNoEnum.YES.getValue());
+            temp.setHlsStatus(YesOrNoEnum.NO.getValue());
+            save(temp);
         };
         executor.execute(run);
     }

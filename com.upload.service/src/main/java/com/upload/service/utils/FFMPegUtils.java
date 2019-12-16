@@ -230,14 +230,15 @@ public class FFMPegUtils {
         }
         String command = "ffmpeg -i " + path + file + " -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
 
-        CmdToolkit.executeConsole(command,true);
+        CmdToolkit.executeConsole(command);
         return true;
     }
 
     public static void doExportImage(String path, String fileName) {
         String realFile = path + fileName;
         path = path + fileName.substring(0, fileName.indexOf("."));
-        String file = fileName;
+        File movieDir = new File(path);
+        movieDir.mkdirs();
         String command = "ffmpeg -i " + realFile + " -r 1 -t 4 " + path + "/image-%1d.jpeg";
         CmdToolkit.executeConsole(command);
         Collection<File> files = FileUtils.listFiles(new File(path), FileFilterUtils.suffixFileFilter("jpeg"), null);
@@ -255,12 +256,7 @@ public class FFMPegUtils {
                 item.delete();
             }
         }
-        maxFile.renameTo(new File(maxFile.getParentFile().getPath()+"/default.jpeg"));
+        maxFile.renameTo(new File(maxFile.getParentFile().getPath() + "/default.jpeg"));
     }
-
-    public static void main(String[] args) {
-        doExportImage("e:/tt/", "out.mp4");
-    }
-
 
 }

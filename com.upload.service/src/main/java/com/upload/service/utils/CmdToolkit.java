@@ -56,10 +56,14 @@ public final class CmdToolkit {
             if (i != 0) {
                 throw new ApplicationException("");
             }
-
-            p.destroy();
         } catch (Exception e) {
             throw new ApplicationException("exec cmd error", e);
+        } finally {
+            try {
+                p.destroy();
+            } catch (Exception e) {
+                log.error("执行命令行失败");
+            }
         }
         return result;
     }

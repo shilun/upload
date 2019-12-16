@@ -247,10 +247,8 @@ public class FileInfoController
         //Content-Disposition: attachment;filename="[文件名]"
         //response.setHeader("Content-Disposition", "attachment;filename=/"" + s.substring(s.lastIndexOf("//") + 1) + "/""); //经测试 RandomAccessFile 也可以实现,有兴趣可将注释去掉,并注释掉 FileInputStream 版本的语句
         response.setHeader("Content-Disposition", "attachment;filename=\"" + proposeFile.getName() + "\"");
-
         //raf.seek(p);
         fis.skip(p);
-
         byte[] b = new byte[1024];
         int i;
         //while ( (i = raf.read(b)) != -1 ) //经测试 RandomAccessFile 也可以实现,有兴趣可将注释去掉,并注释掉 FileInputStream 版本的语句
@@ -299,6 +297,7 @@ public class FileInfoController
             }
         });
     }
+
     @RequestMapping("/index")
     @ResponseBody
     public Map<String, Object> index() {
@@ -306,13 +305,13 @@ public class FileInfoController
         return null;
     }
 
-
     public static void main(String[] args) {
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
+        uploadUtil.setDomainName("127.0.0.1");
         uploadUtil.setScode("video");
-        uploadUtil.setDomainName("localhost");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("E:\\tt\\out.mp4"));
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("d:/tt.mp4"));
         System.out.println(stringResult);
     }
+
 }
