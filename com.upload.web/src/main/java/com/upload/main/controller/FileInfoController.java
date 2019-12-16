@@ -307,10 +307,10 @@ public class FileInfoController
 
     public static void main(String[] args) {
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("127.0.0.1");
-        uploadUtil.setScode("video");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("d:/tt.mp4"));
+        uploadUtil.setDomainName("upload.bsm.com");
+        uploadUtil.setScode("image");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("E:\\movie\\images\\video\\55885a7d27fa4d4498430b052e69b3fe\\default.jpeg"));
         System.out.println(stringResult);
     }
 
