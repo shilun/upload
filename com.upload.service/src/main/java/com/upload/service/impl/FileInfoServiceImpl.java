@@ -286,7 +286,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         fileInfo.setExecCount(0);
         fileInfo.setName(file.getOriginalFilename());
         String path = config.getScode() + "/" + fileRealName;
-
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
         this.insert(fileInfo);

@@ -298,19 +298,12 @@ public class FileInfoController
         });
     }
 
-    @RequestMapping("/index")
-    @ResponseBody
-    public Map<String, Object> index() {
-        fileInfoService.doVedioSplit();
-        return null;
-    }
-
     public static void main(String[] args) {
         UploadUtil uploadUtil = new UploadUtil();
         uploadUtil.setDomainName("upload.bsm.com");
-        uploadUtil.setScode("image");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("E:\\movie\\images\\video\\55885a7d27fa4d4498430b052e69b3fe\\default.jpeg"));
+        uploadUtil.setScode("video");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("d:\\tt.mp4"));
         System.out.println(stringResult);
     }
 
