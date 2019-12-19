@@ -76,14 +76,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         videos.add("mp4");
     }
 
-    private com.google.common.cache.Cache<String, FileUploadConfig> scodeCache = CacheBuilder.newBuilder().initialCapacity(10)
-            .concurrencyLevel(5)
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .build();
-    private com.google.common.cache.Cache<String, FileUploadConfig> keyCache = CacheBuilder.newBuilder().initialCapacity(10)
-            .concurrencyLevel(5)
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .build();
+    private com.google.common.cache.Cache<String, FileUploadConfig> scodeCache = CacheBuilder.newBuilder().initialCapacity(10).concurrencyLevel(5).expireAfterWrite(1, TimeUnit.HOURS).build();
+    private com.google.common.cache.Cache<String, FileUploadConfig> keyCache = CacheBuilder.newBuilder().initialCapacity(10).concurrencyLevel(5).expireAfterWrite(1, TimeUnit.HOURS).build();
 
     @Override
     public void doVedioSplit() {
@@ -138,6 +132,13 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         Map<String, Object> result = new HashMap();
 
         FileUploadConfig config = findConfigByScode(scode);
+        String fileRootPath = null;
+        String rootPath = null;
+        if (this.fileRootPath.endsWith("/")) {
+            rootPath = this.fileRootPath + "/";
+        } else {
+            rootPath = this.fileRootPath;
+        }
         if (config.getFileType() == FileTypeEnum.PICTURE.getValue().intValue()) {
             String prefix = file.substring(file.lastIndexOf("."));
             String fileName = file.substring(0, file.lastIndexOf("."));
@@ -145,13 +146,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 size = "_" + size;
             }
             file = fileName + File.separator + fileName + size + prefix;
-            String fileRootPath=null;
-            if(this.fileRootPath.endsWith("/")){
-                fileRootPath = this.fileRootPath  + scode + "/" + file;
-            }
-            else{
-                fileRootPath = this.fileRootPath + "/" + scode + "/" + file;
-            }
+            fileRootPath = rootPath + scode + "/" + file;
 
             File imageFile = new File(fileRootPath);
             if (!imageFile.exists()) {
@@ -161,10 +156,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
 
         }
-        String filePath = this.fileRootPath;
-        if ((!filePath.endsWith("/")) && (!filePath.endsWith("\\"))) {
-            filePath = filePath + "/" + scode + "/" + file;
-        }
+        String filePath = rootPath + scode + "/" + file;
 
         FileInputStream inputStream = null;
         try {
