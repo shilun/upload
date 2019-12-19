@@ -134,7 +134,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         FileUploadConfig config = findConfigByScode(scode);
         String fileRootPath = null;
         String rootPath = null;
-        if (this.fileRootPath.endsWith("/")) {
+        if (!this.fileRootPath.endsWith("/")) {
             rootPath = this.fileRootPath + "/";
         } else {
             rootPath = this.fileRootPath;
@@ -150,7 +150,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
             File imageFile = new File(fileRootPath);
             if (!imageFile.exists()) {
-                String sourceFile = this.fileRootPath + "/" + scode + "/" + fileName + File.separator + fileName + prefix;
+                String sourceFile = rootPath + scode + "/" + fileName + File.separator + fileName + prefix;
                 String[] sizeStr = size.substring(1).split("x");
                 imageProcessor.saveImage(new File(sourceFile), Integer.parseInt(sizeStr[0]), Integer.parseInt(sizeStr[1]));
             }
