@@ -301,9 +301,9 @@ public class FileInfoController
     public static void main(String[] args) {
         UploadUtil uploadUtil = new UploadUtil();
         uploadUtil.setDomainName("upload.bsm.com");
-        uploadUtil.setScode("video");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("d:\\tt.mp4"));
+        uploadUtil.setScode("img");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("d:\\de.jpg"));
         System.out.println(stringResult);
     }
 

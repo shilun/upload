@@ -145,7 +145,14 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 size = "_" + size;
             }
             file = fileName + File.separator + fileName + size + prefix;
-            String fileRootPath = this.fileRootPath + "/" + scode + "/" + file;
+            String fileRootPath=null;
+            if(this.fileRootPath.endsWith("/")){
+                fileRootPath = this.fileRootPath  + scode + "/" + file;
+            }
+            else{
+                fileRootPath = this.fileRootPath + "/" + scode + "/" + file;
+            }
+
             File imageFile = new File(fileRootPath);
             if (!imageFile.exists()) {
                 String sourceFile = this.fileRootPath + "/" + scode + "/" + fileName + File.separator + fileName + prefix;
