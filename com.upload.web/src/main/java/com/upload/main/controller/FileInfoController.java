@@ -177,7 +177,7 @@ public class FileInfoController
 
 
     @RequestMapping({"/download_erro"})
-
+    @ResponseBody
     public Map<String, Object> downError(final String code, final String message) {
         return buildMessage(new IExecute() {
             public Object getData() {
@@ -290,7 +290,7 @@ public class FileInfoController
     }
 
     @RequestMapping({"/upload"})
-
+    @ResponseBody
     public Map<String, Object> upload(final MultipartFile file, final String key) {
         return buildMessage(new IExecute() {
             public Object getData() {
@@ -301,7 +301,7 @@ public class FileInfoController
 
     public static void main(String[] args) throws IOException {
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("lottery.lottery.com:8081");
+        uploadUtil.setDomainName("upload.bsm.com:8081");
         uploadUtil.setScode("img");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         Result<String> stringResult = uploadUtil.uploadFile(new File("E:/default.jpeg"));
