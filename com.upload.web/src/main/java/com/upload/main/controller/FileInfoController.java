@@ -4,10 +4,13 @@ import com.common.exception.BizException;
 import com.common.httpclient.HttpClientUtil;
 import com.common.upload.UploadUtil;
 import com.common.util.Result;
+import com.common.util.model.YesOrNoEnum;
 import com.common.web.AbstractController;
 import com.common.web.IExecute;
+import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
+import com.upload.service.FileUploadConfigService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -30,8 +33,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = {"/"}, method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST, RequestMethod.OPTIONS})
-public class FileInfoController
-        extends AbstractController {
+public class FileInfoController extends AbstractController {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileInfoController.class);
@@ -40,8 +42,7 @@ public class FileInfoController
 
 
     @RequestMapping({"/download"})
-    public void donwload(String fileName, String key, HttpServletResponse response)
-            throws Exception {
+    public void donwload(String fileName, String key, HttpServletResponse response) throws Exception {
         try {
             Map<String, Object> downFile = this.fileInfoService.downFile(key, fileName);
             FileTypeEnum typeEnum = (FileTypeEnum) downFile.get("fileType");
@@ -78,9 +79,7 @@ public class FileInfoController
     }
 
     @RequestMapping({"/video/{file}/{item}.ts"})
-    public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse
-            response)
-            throws Exception {
+    public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
         File realFile = new File(path);
         if (realFile.exists()) {
@@ -89,11 +88,11 @@ public class FileInfoController
     }
 
     @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
-    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response)
-            throws Exception {
+    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
         if (StringUtils.endsWithIgnoreCase("scode", "video")) {
             return;
         }
+
         try {
             byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
             if (StringUtils.isNotBlank(name)) {
@@ -150,12 +149,15 @@ public class FileInfoController
     }
 
     @RequestMapping({"{scode}/{file}.{fileType}"})
-    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response)
-            throws Exception {
+    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
         try {
             if (fileType.equalsIgnoreCase("m3u8")) {
                 downloadPlayerIndex(file, response);
                 return;
+            }
+            FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
+            if (configByScode.getHttpDown().intValue() == YesOrNoEnum.NO.getValue()) {
+                throw new BizException("data.error", "非法操作");
             }
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
@@ -186,8 +188,7 @@ public class FileInfoController
         });
     }
 
-    private void downloadExistsFile(HttpServletRequest request, HttpServletResponse response, File proposeFile) throws Exception,
-            FileNotFoundException {
+    private void downloadExistsFile(HttpServletRequest request, HttpServletResponse response, File proposeFile) throws Exception, FileNotFoundException {
         java.io.FileInputStream fis = new java.io.FileInputStream(proposeFile);
         response.reset();
         //告诉客户端允许断点续传多线程连接下载
@@ -260,8 +261,7 @@ public class FileInfoController
         fis.close();
     }
 
-    private void download(HttpServletResponse response, byte[] file, String contentType, String realName)
-            throws Exception {
+    private void download(HttpServletResponse response, byte[] file, String contentType, String realName) throws Exception {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
         response.setContentType("text/html;charset=UTF-8");
@@ -301,14 +301,14 @@ public class FileInfoController
 
     public static void main(String[] args) throws IOException {
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("upload.bsm.com:8081");
-        uploadUtil.setScode("img");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        uploadUtil.setDomainName("pass.bsm.com:8081");
+        uploadUtil.setScode("res");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25119");
         Result<String> stringResult = uploadUtil.uploadFile(new File("E:/default.jpeg"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
 
-        IOUtils.write(bytes,new FileOutputStream(new File("d:/ssss.jpeg")));
+        IOUtils.write(bytes, new FileOutputStream(new File("d:/ssss.jpeg")));
         System.out.println(stringResult);
     }
 

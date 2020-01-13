@@ -77,7 +77,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     }
 
     private com.google.common.cache.Cache<String, FileUploadConfig> scodeCache = CacheBuilder.newBuilder().initialCapacity(10).concurrencyLevel(5).expireAfterWrite(1, TimeUnit.HOURS).build();
-    private com.google.common.cache.Cache<String, FileUploadConfig> keyCache = CacheBuilder.newBuilder().initialCapacity(10).concurrencyLevel(5).expireAfterWrite(1, TimeUnit.HOURS).build();
 
     @Override
     public void doVedioSplit() {
@@ -90,7 +89,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     }
 
     public Map<String, Object> downFile(String key, String fileName) {
-        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{key});
         Map<String, Object> result = new HashMap();
         FileUploadConfig config = findConfigByKey(key);
         if (config == null) {
@@ -98,12 +96,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         }
         FileInfo fileQuery = new FileInfo();
         fileQuery.setPath(config.getScode() + "/" + fileName);
-        keyString = MessageFormat.format("UPLOAD.FILE.PATH.KEY.{0}", new Object[]{config.getScode() + "/" + fileName});
-        FileInfo findByOne = (FileInfo) this.redisTemplate.opsForValue().get(keyString);
-        if (findByOne == null) {
-            findByOne = (FileInfo) this.findByOne(fileQuery);
-            this.redisTemplate.opsForValue().set(keyString, findByOne, 1800);
-        }
+        FileInfo findByOne = this.findByOne(fileQuery);
         if (findByOne == null) {
             logger.error("文件记录未找到 key:" + key + " path:" + config.getScode() + "/" + fileName);
             throw new BizException("006", "文件下载失败");
@@ -128,7 +121,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     }
 
     public byte[] httpDown(String scode, String file, String size) {
-        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{scode});
         Map<String, Object> result = new HashMap();
 
         FileUploadConfig config = findConfigByScode(scode);
@@ -185,7 +177,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         return new File(filePath);
     }
 
-    private FileUploadConfig findConfigByScode(String scode) {
+    public FileUploadConfig findConfigByScode(String scode) {
         try {
             return scodeCache.get(scode, new Callable<FileUploadConfig>() {
                 @Override
@@ -220,7 +212,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     protected int vedioSize = 1048576;
 
     public String upload(MultipartFile file, String key) {
-        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", key);
         if (StringUtils.isBlank(key)) {
             throw new BizException("001", "业务码不能为空");
         }

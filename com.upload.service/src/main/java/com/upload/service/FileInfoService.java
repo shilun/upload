@@ -2,6 +2,7 @@ package com.upload.service;
 
 import com.common.mongo.MongoService;
 import com.upload.domain.FileInfo;
+import com.upload.domain.FileUploadConfig;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -21,4 +22,5 @@ public abstract interface FileInfoService
   public abstract List<String> getPictures();
 
   public void doVedioSplit();
+  public FileUploadConfig findConfigByScode(String scode);
 }
