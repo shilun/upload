@@ -167,12 +167,12 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
 
     public File httpDown(String scode, String file) {
-        String keyString = MessageFormat.format("UPLOAD.FILE.CONFIG.KEY.{0}", new Object[]{scode});
-        Map<String, Object> result = new HashMap();
-        FileUploadConfig config = findConfigByScode(scode);
         String filePath = this.fileRootPath;
         if ((!filePath.endsWith("/")) && (!filePath.endsWith("\\"))) {
             filePath = filePath + "/" + scode + "/" + file;
+        }
+        else{
+            filePath = filePath  + scode + "/" + file;
         }
         return new File(filePath);
     }
