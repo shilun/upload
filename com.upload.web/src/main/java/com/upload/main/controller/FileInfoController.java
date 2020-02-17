@@ -302,9 +302,9 @@ public class FileInfoController extends AbstractController {
     public static void main(String[] args) throws IOException {
         UploadUtil uploadUtil = new UploadUtil();
         uploadUtil.setDomainName("localhost:8081");
-        uploadUtil.setScode("res");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25119");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("D:\\礼物svga\\"));
+        uploadUtil.setScode("img");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("D:\\workspace-movie\\视频\\切图\\mipmap-hdpi\\banner.png"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
 

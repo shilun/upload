@@ -13,6 +13,7 @@ import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import com.upload.service.utils.FFMPegUtils;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Service
@@ -81,6 +79,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     @Override
     public void doVedioSplit() {
         Criteria criteria = Criteria.where("type").is(FileTypeEnum.VIDEO.getValue()).and("status").is(YesOrNoEnum.NO.getValue()).and("hlsStatus").is(YesOrNoEnum.NO.getValue());
+        DateTime time=new DateTime(new Date());
+        time.plusSeconds(-10);
+        criteria.and("createTime").lt(time.toDate());
         Query query = new Query(criteria);
         Page<FileInfo> fileInfos = queryByPage(query, PageRequest.of(0, 100));
         for (FileInfo item : fileInfos.getContent()) {
@@ -279,6 +280,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
         this.insert(fileInfo);
+        if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
+            doVideoFile(fileInfo);
+        }
         return fileRealName;
     }
 
