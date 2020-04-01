@@ -12,6 +12,7 @@ import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import com.upload.service.utils.FFMPegUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,18 +95,17 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         if (config == null) {
             throw new BizException("002", "业务码标识失败");
         }
-        FileInfo fileQuery = new FileInfo();
-        fileQuery.setPath(config.getScode() + "/" + fileName);
-        FileInfo findByOne = this.findByOne(fileQuery);
-        if (findByOne == null) {
+        String realName=this.fileRootPath+config.getScode() + "/" + fileName;
+        File downFile=new File(realName);
+        if (!downFile.exists()) {
             logger.error("文件记录未找到 key:" + key + " path:" + config.getScode() + "/" + fileName);
             throw new BizException("006", "文件下载失败");
         }
         FileInputStream input = null;
         try {
-            result.put("fileName", findByOne.getName());
+            result.put("fileName", fileName);
             result.put("fileType", GlosseryEnumUtils.getItem(FileTypeEnum.class, config.getFileType()));
-            input = new FileInputStream(this.fileRootPath + "/" + findByOne.getPath());
+            input = new FileInputStream(downFile);
             byte[] file = IOUtils.toByteArray(input);
             result.put("data", file);
         } catch (FileNotFoundException e) {

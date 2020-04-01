@@ -41,7 +41,7 @@ public class FileInfoController extends AbstractController {
     private FileInfoService fileInfoService;
 
 
-    @RequestMapping({"/download"})
+    @RequestMapping(name="/download",method = RequestMethod.POST)
     public void donwload(String fileName, String key, HttpServletResponse response) throws Exception {
         try {
             Map<String, Object> downFile = this.fileInfoService.downFile(key, fileName);
