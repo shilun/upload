@@ -32,9 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Map;
 
-@Controller
-@RequestMapping(value = {"/"}, method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST, RequestMethod.OPTIONS})
 @Api
+@Controller
+@RequestMapping
 public class FileInfoController extends AbstractController {
 
 
