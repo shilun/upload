@@ -11,6 +11,7 @@ import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
+import io.swagger.annotations.Api;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = {"/"}, method = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST, RequestMethod.OPTIONS})
+@Api
 public class FileInfoController extends AbstractController {
 
 

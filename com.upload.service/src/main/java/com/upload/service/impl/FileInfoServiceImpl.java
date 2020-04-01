@@ -95,7 +95,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         if (config == null) {
             throw new BizException("002", "业务码标识失败");
         }
-        String realName=this.fileRootPath+config.getScode() + "/" + fileName;
+        String realName=this.fileRootPath+"/"+config.getScode() + "/" + fileName;
         File downFile=new File(realName);
         if (!downFile.exists()) {
             logger.error("文件记录未找到 key:" + key + " path:" + config.getScode() + "/" + fileName);
