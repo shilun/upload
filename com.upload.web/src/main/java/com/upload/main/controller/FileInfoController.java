@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Map;
 
-@Api
 @Controller
 @RequestMapping
 public class FileInfoController extends AbstractController {
