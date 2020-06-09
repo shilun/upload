@@ -81,7 +81,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
     @Override
     public void doVedioSplit() {
-        Criteria criteria = Criteria.where("type").is(FileTypeEnum.VIDEO.getValue()).and("status").is(YesOrNoEnum.NO.getValue()).and("hlsStatus").is(YesOrNoEnum.NO.getValue());
+        Criteria criteria = Criteria.where("type").is(FileTypeEnum.VIDEO.getValue()).and("status").is(YesOrNoEnum.NO.getValue()).and("hlsStatus").is(YesOrNoEnum.NO.getValue()).and("execCount").lte(3);
         Query query = new Query(criteria);
         Page<FileInfo> fileInfos = queryByPage(query, PageRequest.of(0, 100));
         for (FileInfo item : fileInfos.getContent()) {
@@ -288,21 +288,29 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
     private void doVideoFile(final FileInfo item) {
         Runnable run = () -> {
-            if (!fileRootPath.endsWith("/")) {
-                fileRootPath = fileRootPath + "/";
+            try {
+                if (!fileRootPath.endsWith("/")) {
+                    fileRootPath = fileRootPath + "/";
+                }
+
+                String realPath = fileRootPath + item.getPath();
+                realPath = realPath.replace("/default.m3u8", ".mp4");
+                int index = realPath.lastIndexOf("/");
+                String path = realPath.substring(0, index);
+                String file = realPath.substring(index);
+                FFMPegUtils.doExportImage(path, file);
+                FFMPegUtils.split(path, file);
+                FileInfo temp = new FileInfo();
+                temp.setId(item.getId());
+                temp.setStatus(YesOrNoEnum.YES.getValue());
+                temp.setHlsStatus(YesOrNoEnum.NO.getValue());
+                save(temp);
+                return;
             }
-            String realPath = fileRootPath + item.getPath();
-            realPath = realPath.replace("/default.m3u8", ".mp4");
-            int index = realPath.lastIndexOf("/");
-            String path = realPath.substring(0, index);
-            String file = realPath.substring(index);
-            FFMPegUtils.doExportImage(path, file);
-            FFMPegUtils.split(path, file);
-            FileInfo temp = new FileInfo();
-            temp.setId(item.getId());
-            temp.setStatus(YesOrNoEnum.YES.getValue());
-            temp.setHlsStatus(YesOrNoEnum.NO.getValue());
-            save(temp);
+            catch (Exception e){
+                logger.error("doVideoFile.error",e);
+            }
+            inc(item.getId(),"execCount",1);
         };
         executor.execute(run);
     }

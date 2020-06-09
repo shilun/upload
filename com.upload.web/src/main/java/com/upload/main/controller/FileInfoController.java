@@ -1,7 +1,6 @@
 package com.upload.main.controller;
 
 import com.common.exception.BizException;
-import com.common.httpclient.HttpClientUtil;
 import com.common.upload.UploadUtil;
 import com.common.util.Result;
 import com.common.util.model.YesOrNoEnum;
@@ -10,8 +9,6 @@ import com.common.web.IExecute;
 import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
-import com.upload.service.FileUploadConfigService;
-import io.swagger.annotations.Api;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -301,16 +297,16 @@ public class FileInfoController extends AbstractController {
     }
 
     public static void main(String[] args) throws IOException {
+
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("localhost:8081");
-        uploadUtil.setScode("res");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25119");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("D:\\礼物svga\\"));
+        uploadUtil.setDomainName("upload.bsm.com");
+        uploadUtil.setScode("img");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/new1.png"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
 
-        IOUtils.write(bytes, new FileOutputStream(new File("d:/ssss.jpeg")));
+        IOUtils.write(bytes, new FileOutputStream(new File("/Users/mac/new1ss.png")));
         System.out.println(stringResult);
     }
-
 }
