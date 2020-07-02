@@ -228,7 +228,7 @@ public class FFMPegUtils {
         if (!dirPath.exists()) {
             dirPath.mkdirs();
         }
-        String command = "ffmpeg -i " + path + file + " -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
+        String command = "ffmpeg -i " + path + file + " -codec copy -vbsf h264_mp4toannexb -metadata:s:v:0 rotate=0 -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
 
         CmdToolkit.executeConsole(command);
         return true;
