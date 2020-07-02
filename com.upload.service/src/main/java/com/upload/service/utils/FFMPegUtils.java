@@ -4,11 +4,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import java.io.*;
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class FFMPegUtils {
 
@@ -27,7 +28,6 @@ public class FFMPegUtils {
             }
         }
         return data;
-
     }
 
     /***
@@ -228,13 +228,15 @@ public class FFMPegUtils {
         if (!dirPath.exists()) {
             dirPath.mkdirs();
         }
-        String command = "ffmpeg -i " + path + file + " -metadata rotate='' "+path+extFile[0]+"/."+extFile[0].substring(1)+".mp4";
+
+
+        String command = "ffmpeg -i " + path + file + " -metadata rotate='' " + path + extFile[0] + "/." + extFile[0].substring(1) + ".mp4";
 
         CmdToolkit.executeConsole(command);
-        command = "ffmpeg -i "+ tmu8File+"/."+extFile[0].substring(1)+".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
+        command = "ffmpeg -i " + tmu8File + "/." + extFile[0].substring(1) + ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
 
         CmdToolkit.executeConsole(command);
-        new File(tmu8File+"/."+extFile[0].substring(1)+".mp4").deleteOnExit();
+        new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
         return true;
     }
 
