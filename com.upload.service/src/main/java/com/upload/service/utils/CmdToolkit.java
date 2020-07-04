@@ -81,8 +81,8 @@ public final class CmdToolkit {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmd);
-            p.waitFor();
             dealStream(p);
+            p.waitFor();
             int i = p.exitValue();
             if (i != 0) {
                 throw new ApplicationException("");
