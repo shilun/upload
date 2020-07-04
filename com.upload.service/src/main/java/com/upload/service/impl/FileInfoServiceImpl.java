@@ -12,7 +12,6 @@ import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import com.upload.service.utils.FFMPegUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +29,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implements FileInfoService {
@@ -48,6 +49,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     public static final String UPLOAD_ERROR = "005";
     public static final String DOWNLOAD_ERROR = "006";
     public static final String DOWNLOAD_FILE_NOT_FOUND = "007";
+
 
     @Override
     protected Class getEntityClass() {
@@ -65,6 +67,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     private RedisTemplate redisTemplate;
     @Resource
     private ImageProcessor imageProcessor;
+
+    @Resource
+    private FFMPegUtils ffmPegUtils;
 
     @Resource(name = "asyncWorkerExecutor")
     private Executor executor;
@@ -95,8 +100,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         if (config == null) {
             throw new BizException("002", "业务码标识失败");
         }
-        String realName=this.fileRootPath+"/"+config.getScode() + "/" + fileName;
-        File downFile=new File(realName);
+        String realName = this.fileRootPath + "/" + config.getScode() + "/" + fileName;
+        File downFile = new File(realName);
         if (!downFile.exists()) {
             logger.error("文件记录未找到 key:" + key + " path:" + config.getScode() + "/" + fileName);
             throw new BizException("006", "文件下载失败");
@@ -170,9 +175,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         String filePath = this.fileRootPath;
         if ((!filePath.endsWith("/")) && (!filePath.endsWith("\\"))) {
             filePath = filePath + "/" + scode + "/" + file;
-        }
-        else{
-            filePath = filePath  + scode + "/" + file;
+        } else {
+            filePath = filePath + scode + "/" + file;
         }
         return new File(filePath);
     }
@@ -295,25 +299,23 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 if (!fileRootPath.endsWith("/")) {
                     fileRootPath = fileRootPath + "/";
                 }
-
                 String realPath = fileRootPath + item.getPath();
                 realPath = realPath.replace("/default.m3u8", ".mp4");
                 int index = realPath.lastIndexOf("/");
                 String path = realPath.substring(0, index);
                 String file = realPath.substring(index);
-                FFMPegUtils.doExportImage(path, file);
-                FFMPegUtils.split(path, file);
+                ffmPegUtils.doExportImage(path, file);
+                ffmPegUtils.split(path, file);
                 FileInfo temp = new FileInfo();
                 temp.setId(item.getId());
                 temp.setStatus(YesOrNoEnum.YES.getValue());
                 temp.setHlsStatus(YesOrNoEnum.YES.getValue());
                 save(temp);
                 return;
+            } catch (Exception e) {
+                logger.error("doVideoFile.error", e);
             }
-            catch (Exception e){
-                logger.error("doVideoFile.error",e);
-            }
-            inc(item.getId(),"execCount",1);
+            inc(item.getId(), "execCount", 1);
         };
         executor.execute(run);
     }

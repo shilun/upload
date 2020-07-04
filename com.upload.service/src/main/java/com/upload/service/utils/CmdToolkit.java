@@ -69,35 +69,6 @@ public final class CmdToolkit {
             }
         }.start();
     }
-    /**
-     * 读取控制命令的输出结果
-     *
-     * @param cmd 命令
-     * @return 控制命令的输出结果
-     * @throws IOException
-     */
-    public static List<String> executeConsole(String cmd) {
-        final List<String> result = new ArrayList<String>();
-        Process p = null;
-        try {
-            p = Runtime.getRuntime().exec(cmd);
-            dealStream(p);
-            int i1 = p.waitFor();
-            int i = p.exitValue();
-            if (i != 0) {
-                throw new ApplicationException("");
-            }
-        } catch (Exception e) {
-            throw new ApplicationException("exec cmd error", e);
-        } finally {
-            try {
-                p.destroy();
-            } catch (Exception e) {
-                log.error("执行命令行失败");
-            }
-        }
-        return result;
-    }
 
 
     public static String toString(OutputStream out) {

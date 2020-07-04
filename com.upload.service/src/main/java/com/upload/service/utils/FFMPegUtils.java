@@ -1,9 +1,12 @@
 package com.upload.service.utils;
 
+import com.upload.service.process.ProcessUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -11,8 +14,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class FFMPegUtils {
 
+    @Resource
+    private ProcessUtil processUtil;
     /***
      * 返回分钟
      * @return
@@ -191,7 +197,7 @@ public class FFMPegUtils {
      * @param start      开始截取时间
      * @param duration   时长
      */
-    public static void cutWithDuration(String sourcePath, String outputPath, String start, String duration) {
+    public  void cutWithDuration(String sourcePath, String outputPath, String start, String duration) {
 
         if (!CommonKit.checkParam(sourcePath, outputPath, start, duration)) {
             throw new RuntimeException("参数不能为空");
@@ -212,12 +218,13 @@ public class FFMPegUtils {
         //ffmpeg -i JTSJ0090.mp4 -codec copy -acodec copy -ss 4 -t 15 b2.mp4 -y -v quiet
 //        String command = String.format("-ss 4 -t %s -accurate_seek -i %s -vcodec copy -acodec copy %s -y -v quiet", duration, sourcePath, outputPath);
         String command = String.format("ffmpeg -i %s -ss %s -t %s %s -y -v quiet", sourcePath, start, duration, outputPath);
-        CmdToolkit.executeConsole(command);
+//        CmdToolkit.executeConsole(command);
+        processUtil.execProcess(command);
 
 
     }
 
-    public static boolean split(String path, String file) {
+    public  boolean split(String path, String file) {
         if(!path.endsWith("/")){
             path=path+"/";
         }
@@ -240,27 +247,26 @@ public class FFMPegUtils {
 
         String command = "ffmpeg -i " + path + file + " -metadata rotate='' " + path + extFile[0] + "/." + extFile[0].substring(1) + ".mp4";
 
-        CmdToolkit.executeConsole(command);
+        processUtil.execProcess(command);
+//        CmdToolkit.executeConsole(command);
         command = "ffmpeg -i " + tmu8File + "/." + extFile[0].substring(1) + ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
 
-        CmdToolkit.executeConsole(command);
+//        CmdToolkit.executeConsole(command);
+        processUtil.execProcess(command);
         new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
         return true;
     }
 
-    public static void main(String[] args) {
-        FFMPegUtils tt=new FFMPegUtils();
-        tt.split("/Users/mac/Documents/","ss.mp4");
-        System.out.println("fdsa");
-    }
 
-    public static void doExportImage(String path, String fileName) {
+
+    public  void doExportImage(String path, String fileName) {
         String realFile = path + fileName;
         path = path + fileName.substring(0, fileName.indexOf("."));
         File movieDir = new File(path);
         movieDir.mkdirs();
         String command = "ffmpeg -i " + realFile + " -r 1 -t 4 " + path + "/image-%1d.jpeg";
-        CmdToolkit.executeConsole(command);
+//        CmdToolkit.executeConsole(command);
+        processUtil.execProcess(command);
         Collection<File> files = FileUtils.listFiles(new File(path), FileFilterUtils.suffixFileFilter("jpeg"), null);
         File maxFile = null;
         for (File item : files) {
