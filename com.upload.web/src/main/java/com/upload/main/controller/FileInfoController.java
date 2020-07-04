@@ -39,9 +39,9 @@ public class FileInfoController extends AbstractController {
 
 
     @RequestMapping({"/download"})
-    public void donwload(String fileName, String key, HttpServletResponse response) throws Exception {
+    public void donwload(DownloadDto dto, HttpServletResponse response) throws Exception {
         try {
-            Map<String, Object> downFile = this.fileInfoService.downFile(key, fileName);
+            Map<String, Object> downFile = this.fileInfoService.downFile(dto.getKey(), dto.getFileName());
             FileTypeEnum typeEnum = (FileTypeEnum) downFile.get("fileType");
             String realName = (String) downFile.get("fileName");
             byte[] data = (byte[]) downFile.get("data");
@@ -299,11 +299,11 @@ public class FileInfoController extends AbstractController {
 
         UploadUtil uploadUtil = new UploadUtil();
         uploadUtil.setDomainName("upload.inteeer.com");
-        uploadUtil.setScode("video");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
+        uploadUtil.setScode("image");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/tt.mp4"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
-
+        System.out.println(bytes);
     }
 }
