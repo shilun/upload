@@ -233,13 +233,18 @@ public class FFMPegUtils {
         }
 
         new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
-        String command = "ffmpeg -i " + path + file + " -metadata rotate='' " + path + extFile[0] + "/." + extFile[0].substring(1) + ".mp4";
 
-//        CmdToolkit.executeConsole(command);
-        command = "ffmpeg -i " + tmu8File + "/." + extFile[0].substring(1) + ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
+        String command = "ffmpeg -i " + tmu8File +  ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
 
         CmdToolkit.executeConsole(command);
-        new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
+
+//        String command = "ffmpeg -i " + path + file + " -metadata rotate='' " + path + extFile[0] + "/." + extFile[0].substring(1) + ".mp4";
+
+//        CmdToolkit.executeConsole(command);
+//        command = "ffmpeg -i " + tmu8File + "/." + extFile[0].substring(1) + ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
+//
+//        CmdToolkit.executeConsole(command);
+//        new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
         return true;
     }
 
