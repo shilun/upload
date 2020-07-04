@@ -305,7 +305,5 @@ public class FileInfoController extends AbstractController {
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
 
-        IOUtils.write(bytes, new FileOutputStream(new File("/Users/mac/Documents/new1ss.png")));
-        System.out.println(stringResult);
     }
 }
