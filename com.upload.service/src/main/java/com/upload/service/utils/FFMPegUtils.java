@@ -218,6 +218,9 @@ public class FFMPegUtils {
     }
 
     public static boolean split(String path, String file) {
+        if(!path.endsWith("/")){
+            path=path+"/";
+        }
         String[] extFile = file.split("\\.");
         File dirPath = new File(path + extFile[0]);
         if (!dirPath.exists()) {
@@ -238,6 +241,12 @@ public class FFMPegUtils {
         CmdToolkit.executeConsole(command);
         new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
         return true;
+    }
+
+    public static void main(String[] args) {
+        FFMPegUtils tt=new FFMPegUtils();
+        tt.split("/Users/mac/Documents/","tt.mp4");
+        System.out.println("fdsa");
     }
 
     public static void doExportImage(String path, String fileName) {
