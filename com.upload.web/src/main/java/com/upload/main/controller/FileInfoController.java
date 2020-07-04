@@ -14,10 +14,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping
 public class FileInfoController extends AbstractController {
 
@@ -38,14 +38,13 @@ public class FileInfoController extends AbstractController {
     private FileInfoService fileInfoService;
 
 
-    @RequestMapping(name="/download")
+    @RequestMapping({"/download"})
     public void donwload(String fileName, String key, HttpServletResponse response) throws Exception {
         try {
             Map<String, Object> downFile = this.fileInfoService.downFile(key, fileName);
             FileTypeEnum typeEnum = (FileTypeEnum) downFile.get("fileType");
             String realName = (String) downFile.get("fileName");
             byte[] data = (byte[]) downFile.get("data");
-
             String typeName = "application/x-download";
             if (typeEnum == FileTypeEnum.PICTURE) {
                 typeName = "jpg";
@@ -299,14 +298,14 @@ public class FileInfoController extends AbstractController {
     public static void main(String[] args) throws IOException {
 
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("upload.bsm.com");
+        uploadUtil.setDomainName("127.0.0.1:8081");
         uploadUtil.setScode("img");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/new1.png"));
+        Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/upload.jpg"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
 
-        IOUtils.write(bytes, new FileOutputStream(new File("/Users/mac/new1ss.png")));
+        IOUtils.write(bytes, new FileOutputStream(new File("/Users/mac/Documents/new1ss.png")));
         System.out.println(stringResult);
     }
 }
