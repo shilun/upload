@@ -82,7 +82,7 @@ public final class CmdToolkit {
         try {
             p = Runtime.getRuntime().exec(cmd);
             dealStream(p);
-            p.waitFor();
+            int i1 = p.waitFor();
             int i = p.exitValue();
             if (i != 0) {
                 throw new ApplicationException("");
