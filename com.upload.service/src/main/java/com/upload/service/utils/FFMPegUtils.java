@@ -229,7 +229,7 @@ public class FFMPegUtils {
             dirPath.mkdirs();
         }
 
-
+        new File(tmu8File + "/." + extFile[0].substring(1) + ".mp4").deleteOnExit();
         String command = "ffmpeg -i " + path + file + " -metadata rotate='' " + path + extFile[0] + "/." + extFile[0].substring(1) + ".mp4";
 
         CmdToolkit.executeConsole(command);
