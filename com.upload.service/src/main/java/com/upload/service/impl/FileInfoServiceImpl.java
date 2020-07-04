@@ -306,7 +306,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 FileInfo temp = new FileInfo();
                 temp.setId(item.getId());
                 temp.setStatus(YesOrNoEnum.YES.getValue());
-                temp.setHlsStatus(YesOrNoEnum.NO.getValue());
+                temp.setHlsStatus(YesOrNoEnum.YES.getValue());
                 save(temp);
                 return;
             }
