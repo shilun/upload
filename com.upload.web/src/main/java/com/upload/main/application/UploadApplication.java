@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = {MongoDataAutoConfiguration.class})
-@ComponentScan(basePackages = {"com.upload", "com.common.config"})
+@ComponentScan(basePackages = {"com.upload", "com.common.config"},excludeFilters = {})
 @EnableScheduling
 public class UploadApplication {
     public static void main(String[] args) {

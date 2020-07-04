@@ -8,7 +8,9 @@ import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.FutureTask;
 
 /**
  * 控制台处理工具箱
@@ -21,22 +23,52 @@ public final class CmdToolkit {
     private CmdToolkit() {
     }
 
-    static void executeStream(List<String> result, InputStream inputStream) {
-        BufferedReader br1 = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            String line1 = null;
-            while ((line1 = br1.readLine()) != null) {
-                if (line1 != null) {
-                    result.add(line1);
+
+
+    public static void dealStream(Process process) {
+        // 处理InputStream的线程
+        new Thread() {
+            @Override
+            public void run() {
+                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line = null;
+                try {
+                    while ((line = in.readLine()) != null) {
+                        log.info("output: " + line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        } catch (IOException e) {
-            throw new ApplicationException(e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-        }
+        }.start();
+        // 处理ErrorStream的线程
+        new Thread() {
+            @Override
+            public void run() {
+                BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                String line = null;
+                try {
+                    while ((line = err.readLine()) != null) {
+                        log.info(line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        err.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
-
     /**
      * 读取控制命令的输出结果
      *
@@ -49,9 +81,8 @@ public final class CmdToolkit {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmd);
-            executeStream(result, p.getErrorStream());
-            executeStream(result, p.getInputStream());
             p.waitFor();
+            dealStream(p);
             int i = p.exitValue();
             if (i != 0) {
                 throw new ApplicationException("");
