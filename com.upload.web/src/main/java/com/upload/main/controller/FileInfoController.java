@@ -36,7 +36,6 @@ public class FileInfoController extends AbstractController {
 
 
     @RequestMapping({"/download"})
-    @CrossOrigin
     public void donwload(DownloadDto dto, HttpServletResponse response) throws Exception {
         try {
             Map<String, Object> downFile = this.fileInfoService.downFile(dto.getKey(), dto.getFileName());
@@ -72,7 +71,6 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @CrossOrigin
     @RequestMapping({"/video/{file}/{item}.ts"})
     public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
@@ -81,7 +79,6 @@ public class FileInfoController extends AbstractController {
             downVideo(path, response);
         }
     }
-    @CrossOrigin
     @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
         if (StringUtils.endsWithIgnoreCase("scode", "video")) {
@@ -142,7 +139,6 @@ public class FileInfoController extends AbstractController {
             IOUtils.closeQuietly(os);
         }
     }
-    @CrossOrigin
     @RequestMapping({"{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
         try {
@@ -175,7 +171,6 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @CrossOrigin
     @RequestMapping({"/download_erro"})
     @ResponseBody
     public Map<String, Object> downError(final String code, final String message) {
@@ -289,7 +284,6 @@ public class FileInfoController extends AbstractController {
 
     @RequestMapping({"/upload"})
     @ResponseBody
-    @CrossOrigin
     public Map<String, Object> upload(final MultipartFile file, final String key) {
         return buildMessage(new IExecute() {
             public Object getData() {
