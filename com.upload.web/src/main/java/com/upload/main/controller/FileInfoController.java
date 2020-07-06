@@ -157,7 +157,7 @@ public class FileInfoController extends AbstractController {
             }
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
-                String typeName = "jpg";
+                String typeName = "image/"+fileType;
                 file = "";
                 download(response, data, typeName, file);
                 return;
