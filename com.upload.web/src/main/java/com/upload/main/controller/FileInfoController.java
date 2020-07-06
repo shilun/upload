@@ -162,7 +162,10 @@ public class FileInfoController extends AbstractController {
                 return;
             } else {
                 file = file + "." + fileType;
-                response.setContentType("application/x-download");
+                response.setContentType("application/octet-stream");
+                if(fileType.startsWith("svg")){
+                    response.setContentType("text/xml");
+                }
                 File currentFile = fileInfoService.httpDown(scode, file);
                 downloadExistsFile(getRequest(), response, currentFile);
             }
@@ -237,7 +240,7 @@ public class FileInfoController extends AbstractController {
         //使客户端直接下载
         //响应的格式是:
         //Content-Type: application/octet-stream
-        response.setContentType("application/octet-stream");
+
 
         //为客户端下载指定默认的下载文件名称
         //响应的格式是:
