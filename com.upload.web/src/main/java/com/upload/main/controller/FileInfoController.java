@@ -152,10 +152,18 @@ public class FileInfoController extends AbstractController {
                 downloadPlayerIndex(file, response);
                 return;
             }
+            if ("videoimg".equals(scode)) {
+                byte[] data = this.fileInfoService.httpDown("video", file + "." + fileType, "");
+                String typeName = "image/" + fileType;
+                file = "";
+                download(response, data, typeName, file);
+                return;
+            }
             FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
             if (configByScode.getHttpDown().intValue() == YesOrNoEnum.NO.getValue()) {
                 throw new BizException("data.error", "非法操作");
             }
+
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "image/" + fileType;
