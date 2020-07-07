@@ -9,12 +9,16 @@ import com.common.web.IExecute;
 import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,6 +83,7 @@ public class FileInfoController extends AbstractController {
             downVideo(path, response);
         }
     }
+
     @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
         if (StringUtils.endsWithIgnoreCase("scode", "video")) {
@@ -139,6 +144,7 @@ public class FileInfoController extends AbstractController {
             IOUtils.closeQuietly(os);
         }
     }
+
     @RequestMapping({"{scode}/{file}.{fileType}"})
     public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
         try {
@@ -152,17 +158,23 @@ public class FileInfoController extends AbstractController {
             }
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
-                String typeName = "image/"+fileType;
+                String typeName = "image/" + fileType;
                 file = "";
                 download(response, data, typeName, file);
                 return;
             } else {
                 file = file + "." + fileType;
+                File currentFile = fileInfoService.httpDown(scode, file);
                 response.setContentType("application/octet-stream");
-                if(fileType.startsWith("svg")){
+                if (fileType.startsWith("svg")) {
                     response.setContentType("text/xml");
                 }
-                File currentFile = fileInfoService.httpDown(scode, file);
+                if (fileType.startsWith("svg")) {
+                    String typeName = "text/xml";
+                    byte[] data = FileUtils.readFileToByteArray(currentFile);
+                    download(response, data, typeName, file);
+                    return;
+                }
                 downloadExistsFile(getRequest(), response, currentFile);
             }
         } catch (BizException e) {
