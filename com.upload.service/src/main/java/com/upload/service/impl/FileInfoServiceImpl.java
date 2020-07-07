@@ -263,7 +263,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             targetFile = new File(picDir, fileRealName);
             try {
                 file.transferTo(targetFile.getAbsoluteFile());
-                Thread.sleep(1000);
             } catch (Exception e) {
                 throw new BizException("005", "文件上传失败，请重试");
             }
