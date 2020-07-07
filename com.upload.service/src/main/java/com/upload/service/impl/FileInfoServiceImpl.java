@@ -126,9 +126,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     }
 
     public byte[] httpDown(String scode, String file, String size) {
-        Map<String, Object> result = new HashMap();
-
-        FileUploadConfig config = findConfigByScode(scode);
         String fileRootPath = null;
         String rootPath = null;
         if (!this.fileRootPath.endsWith("/")) {
@@ -136,6 +133,10 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         } else {
             rootPath = this.fileRootPath;
         }
+        if(scode.equals("video")){
+            file=file.substring(0, file.indexOf("."))+"/default.jpeg";
+        }
+        FileUploadConfig config = findConfigByScode(scode);
         if (config.getFileType() == FileTypeEnum.PICTURE.getValue().intValue()) {
             String prefix = file.substring(file.lastIndexOf("."));
             String fileName = file.substring(0, file.lastIndexOf("."));
