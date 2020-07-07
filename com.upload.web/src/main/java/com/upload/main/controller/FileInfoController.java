@@ -76,7 +76,7 @@ public class FileInfoController extends AbstractController {
     }
 
     @RequestMapping({"/video/{file}/{item}.ts"})
-    public void down(@PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
+    public void downloadVideo(@PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
         File realFile = new File(path);
         if (realFile.exists()) {
@@ -84,29 +84,23 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping({"{size}/{scode}/{file}.{fileType}"})
-    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String size, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
-        if (StringUtils.endsWithIgnoreCase("scode", "video")) {
+    @RequestMapping({"{size}/{scode}/{file}/{name}.{fileType}"})
+    public void downloadImageSizeResource(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String name, @PathVariable String fileType, HttpServletResponse response) {
+        if (StringUtils.endsWithIgnoreCase(scode, "video")) {
             return;
         }
-
         try {
             byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
-            if (StringUtils.isNotBlank(name)) {
-                file = name;
-            }
             String typeName = "application/x-download";
             if (this.fileInfoService.getPictures().contains(fileType)) {
-                typeName = "jpg";
+                typeName = "image/" + fileType;
                 file = "";
             } else {
                 file = file + "." + fileType;
             }
-
             download(response, data, typeName, file);
-        } catch (BizException e) {
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            request.getSession().getServletContext().getRequestDispatcher("/download_erro?code=" + e.getCode() + "&message=" + e.getMessage()).forward(request, response);
+        } catch (Exception e) {
+            throw new BizException(e);
         }
     }
 
@@ -145,8 +139,8 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping({"{scode}/{file}.{fileType}"})
-    public void down(@PathVariable String scode, @PathVariable String file, @PathVariable String fileType, String name, HttpServletResponse response) throws Exception {
+    @RequestMapping({"{scode}/{file}/{name}.{fileType}"})
+    public void downloadResource(@PathVariable String scode, @PathVariable String file, @PathVariable String name, @PathVariable String fileType, HttpServletResponse response) {
         try {
             if (fileType.equalsIgnoreCase("m3u8")) {
                 downloadPlayerIndex(file, response);
@@ -183,11 +177,12 @@ public class FileInfoController extends AbstractController {
                     download(response, data, typeName, file);
                     return;
                 }
-                downloadExistsFile(getRequest(), response, currentFile);
+                byte[] data = FileUtils.readFileToByteArray(currentFile);
+                String typeName = "application/octet-stream";
+                download(response, data, typeName, file);
             }
-        } catch (BizException e) {
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            request.getSession().getServletContext().getRequestDispatcher("/download_erro?code=" + e.getCode() + "&message=" + e.getMessage()).forward(request, response);
+        } catch (Exception e) {
+            throw new BizException(e);
         }
     }
 
@@ -199,79 +194,6 @@ public class FileInfoController extends AbstractController {
                 throw new BizException(code, message);
             }
         });
-    }
-
-    private void downloadExistsFile(HttpServletRequest request, HttpServletResponse response, File proposeFile) throws Exception, FileNotFoundException {
-        java.io.FileInputStream fis = new java.io.FileInputStream(proposeFile);
-        response.reset();
-        //告诉客户端允许断点续传多线程连接下载
-        //响应的格式是:
-        //Accept-Ranges: bytes
-        response.setHeader("Accept-Ranges", "bytes");
-
-        long p = 0;
-        long l = 0;
-        //l = raf.length();
-        l = proposeFile.length();
-
-        //如果是第一次下,还没有断点续传,状态是默认的 200,无需显式设置
-        //响应的格式是:
-        //HTTP/1.1 200 OK
-
-        String range = request.getHeader("Range");
-        if (range != null) //客户端请求的下载的文件块的开始字节
-        {
-            //如果是下载文件的范围而不是全部,向客户端声明支持并开始文件块下载
-            //要设置状态
-            //响应的格式是:
-            //HTTP/1.1 206 Partial Content
-            if (range.equalsIgnoreCase("bytes=0-")) {
-                response.setStatus(HttpServletResponse.SC_OK);//206
-            } else {
-                response.setStatus(javax.servlet.http.HttpServletResponse.SC_PARTIAL_CONTENT);
-            }
-
-            //从请求中得到开始的字节
-            //请求的格式是:
-            //Range: bytes=[文件块的开始字节]-
-//            p = Long.parseLong(request.getHeader("Range").replaceAll("bytes=","").replaceAll("-",""));
-            p = Long.parseLong((range.replaceAll("bytes=", "").split("-")[0]));
-        }
-
-        //下载的文件(或块)长度
-        //响应的格式是:
-        //Content-Length: [文件的总大小] - [客户端请求的下载的文件块的开始字节]
-        response.setHeader("Content-Length", new Long(l - p).toString());
-
-        if (p != 0) {
-            //不是从最开始下载,
-            //响应的格式是:
-            //Content-Range: bytes [文件块的开始字节]-[文件的总大小 - 1]/[文件的总大小]
-            response.setHeader("Content-Range", "bytes " + new Long(p).toString() + "-" + new Long(l - 1).toString() + "/" + new Long(l).toString());
-        }
-
-        //response.setHeader("Connection", "Close"); //如果有此句话不能用 IE 直接下载
-
-        //使客户端直接下载
-        //响应的格式是:
-        //Content-Type: application/octet-stream
-
-
-        //为客户端下载指定默认的下载文件名称
-        //响应的格式是:
-        //Content-Disposition: attachment;filename="[文件名]"
-        //response.setHeader("Content-Disposition", "attachment;filename=/"" + s.substring(s.lastIndexOf("//") + 1) + "/""); //经测试 RandomAccessFile 也可以实现,有兴趣可将注释去掉,并注释掉 FileInputStream 版本的语句
-        response.setHeader("Content-Disposition", "attachment;filename=\"" + proposeFile.getName() + "\"");
-        //raf.seek(p);
-        fis.skip(p);
-        byte[] b = new byte[1024];
-        int i;
-        //while ( (i = raf.read(b)) != -1 ) //经测试 RandomAccessFile 也可以实现,有兴趣可将注释去掉,并注释掉 FileInputStream 版本的语句
-        while ((i = fis.read(b)) != -1) {
-            response.getOutputStream().write(b, 0, i);
-        }
-        //raf.close();//经测试 RandomAccessFile 也可以实现,有兴趣可将注释去掉,并注释掉 FileInputStream 版本的语句
-        fis.close();
     }
 
     private void download(HttpServletResponse response, byte[] file, String contentType, String realName) throws Exception {
