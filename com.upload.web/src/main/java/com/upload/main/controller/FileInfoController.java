@@ -39,7 +39,7 @@ public class FileInfoController extends AbstractController {
     private FileInfoService fileInfoService;
 
 
-    @RequestMapping({"/download"})
+    @RequestMapping("/download")
     public void donwload(DownloadDto dto, HttpServletResponse response) throws Exception {
         try {
             Map<String, Object> downFile = this.fileInfoService.downFile(dto.getKey(), dto.getFileName());
@@ -75,7 +75,7 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping({"/video/{file}/{item}.ts"})
+    @RequestMapping("/video/{file}/{item}.ts")
     public void downloadVideo(@PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
         String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
         File realFile = new File(path);
@@ -84,7 +84,7 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping({"{size}/{scode}/{file}/{name}.{fileType}"})
+    @RequestMapping("{size}/{scode}/{file}/{name}.{fileType}")
     public void downloadImageSizeResource(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String name, @PathVariable String fileType, HttpServletResponse response) {
         if (StringUtils.endsWithIgnoreCase(scode, "video")) {
             return;
@@ -139,8 +139,9 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping({"{scode}/{file}/{name}.{fileType}"})
-    public void downloadResource(@PathVariable String scode, @PathVariable String file, @PathVariable String name, @PathVariable String fileType, HttpServletResponse response) {
+
+    @RequestMapping("{scode}/{file}.{fileType}")
+    public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equalsIgnoreCase("m3u8")) {
                 downloadPlayerIndex(file, response);
