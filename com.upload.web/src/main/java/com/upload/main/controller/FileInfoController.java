@@ -149,7 +149,6 @@ public class FileInfoController extends AbstractController {
             }
             if (scode.startsWith("s")) {
                 scode = scode.substring(1);
-                FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "image/" + fileType;
                 file = "";
