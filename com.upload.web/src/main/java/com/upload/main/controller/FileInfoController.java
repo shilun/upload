@@ -62,8 +62,8 @@ public class FileInfoController extends AbstractController {
     private String fileRootPath;
 
 
-    private void downloadPlayerIndex(@PathVariable String file, HttpServletResponse response) {
-        String path = fileRootPath + "/video/" + file + "/default.m3u8";
+    private void downloadPlayerIndex(String scode, String file, HttpServletResponse response) {
+        String path = fileRootPath + "/" + scode + "/" + file + "/default.m3u8";
         File realFile = new File(path);
         try {
             if (realFile.getAbsoluteFile().exists()) {
@@ -75,9 +75,13 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping("/video/{file}/{item}.ts")
-    public void downloadVideo(@PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
-        String path = fileRootPath + "/video/" + file + "/" + item + ".ts";
+    @RequestMapping("/{scode}/{file}/{item}.ts")
+    public void downloadVideo(@PathVariable String scode, @PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
+        FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
+        if (configByScode.getFileType() != FileTypeEnum.VIDEO.getValue().intValue()) {
+            throw new BizException("data.error", "非法操作");
+        }
+        String path = fileRootPath + "/" + configByScode.getScode() + "/" + file + "/" + item + ".ts";
         File realFile = new File(path);
         if (realFile.exists()) {
             downVideo(path, response);
@@ -143,8 +147,8 @@ public class FileInfoController extends AbstractController {
     @RequestMapping("{scode}/{file}.{fileType}")
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
-            if (fileType.equalsIgnoreCase("m3u8")) {
-                downloadPlayerIndex(file, response);
+            if (fileType.equals("m3u8")) {
+                downloadPlayerIndex(scode, file, response);
                 return;
             }
             if (scode.startsWith("s")) {
@@ -159,7 +163,6 @@ public class FileInfoController extends AbstractController {
             if (configByScode.getHttpDown().intValue() == YesOrNoEnum.NO.getValue()) {
                 throw new BizException("data.error", "非法操作");
             }
-
             if (this.fileInfoService.getPictures().contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "image/" + fileType;
@@ -188,12 +191,11 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping("{scode}/{file}/default.jpeg")
-    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file,   HttpServletResponse response) {
+    @RequestMapping("{scode}/{file}/default.{fileType}")
+    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType,HttpServletResponse response) {
         try {
-            String fileType="jpeg";
             if (fileType.equalsIgnoreCase("m3u8")) {
-                downloadPlayerIndex(file, response);
+                downloadPlayerIndex(scode,file, response);
                 return;
             }
             if (scode.startsWith("s")) {
