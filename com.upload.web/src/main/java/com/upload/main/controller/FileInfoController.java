@@ -188,6 +188,27 @@ public class FileInfoController extends AbstractController {
         }
     }
 
+    @RequestMapping("{scode}/{file}/default.jpeg")
+    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file,   HttpServletResponse response) {
+        try {
+            String fileType="jpeg";
+            if (fileType.equalsIgnoreCase("m3u8")) {
+                downloadPlayerIndex(file, response);
+                return;
+            }
+            if (scode.startsWith("s")) {
+                scode = scode.substring(1);
+                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
+                String typeName = "image/" + fileType;
+                file = "";
+                download(response, data, typeName, file);
+                return;
+            }
+        } catch (Exception e) {
+            throw new BizException(e);
+        }
+    }
+
     @RequestMapping({"/download_erro"})
     @ResponseBody
     public Map<String, Object> downError(final String code, final String message) {

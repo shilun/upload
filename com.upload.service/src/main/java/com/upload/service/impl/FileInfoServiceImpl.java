@@ -133,10 +133,10 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         } else {
             rootPath = this.fileRootPath;
         }
-        if(scode.equals("video")){
+        FileUploadConfig config = findConfigByScode(scode);
+        if(config.getFileType()==FileTypeEnum.VIDEO.getValue().intValue()){
             file=file.substring(0, file.indexOf("."))+"/default.jpeg";
         }
-        FileUploadConfig config = findConfigByScode(scode);
         if (config.getFileType() == FileTypeEnum.PICTURE.getValue().intValue()) {
             String prefix = file.substring(file.lastIndexOf("."));
             String fileName = file.substring(0, file.lastIndexOf("."));
