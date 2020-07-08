@@ -147,8 +147,10 @@ public class FileInfoController extends AbstractController {
                 downloadPlayerIndex(file, response);
                 return;
             }
-            if ("vimg".equals(scode)) {
-                byte[] data = this.fileInfoService.httpDown("video", file + "." + fileType, "");
+            if (scode.startsWith("s")) {
+                scode = scode.substring(1);
+                FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
+                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "image/" + fileType;
                 file = "";
                 download(response, data, typeName, file);
