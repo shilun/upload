@@ -249,7 +249,7 @@ public class FFMPegUtils {
 
         processUtil.execProcess(command);
 //        CmdToolkit.executeConsole(command);
-        command = "ffmpeg -i " + tmu8File + "/." + extFile[0].substring(1) + ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  5 " + tmu8File + "/%03d.ts";
+        command = "ffmpeg -i " + tmu8File + "/." + extFile[0].substring(1) + ".mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list " + tmu8File + "/default.m3u8 -segment_time  3 " + tmu8File + "/%03d.ts";
 
 //        CmdToolkit.executeConsole(command);
         processUtil.execProcess(command);
