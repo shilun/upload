@@ -35,7 +35,6 @@ public class ProcessUtil {
         ArrayList<String> commonds = new ArrayList<>();
         commonds.add(cmdStr);
         String s = executeCommand(commonds);
-        log.warn(s);
     }
 
 
