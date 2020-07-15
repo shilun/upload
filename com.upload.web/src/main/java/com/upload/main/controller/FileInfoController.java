@@ -88,6 +88,25 @@ public class FileInfoController extends AbstractController {
         }
     }
 
+    @RequestMapping("{size}/{scode}/{file}.{fileType}")
+    public void downloadImageSize(@PathVariable String size, @PathVariable String scode, @PathVariable String file,  @PathVariable String fileType, HttpServletResponse response) {
+        if (StringUtils.endsWithIgnoreCase(scode, "video")) {
+            return;
+        }
+        try {
+            byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
+            String typeName = "application/x-download";
+            if (this.fileInfoService.getPictures().contains(fileType)) {
+                typeName = "image/" + fileType;
+                file = "";
+            } else {
+                file = file + "." + fileType;
+            }
+            download(response, data, typeName, file);
+        } catch (Exception e) {
+            throw new BizException(e);
+        }
+    }
     @RequestMapping("{size}/{scode}/{file}/{name}.{fileType}")
     public void downloadImageSizeResource(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String name, @PathVariable String fileType, HttpServletResponse response) {
         if (StringUtils.endsWithIgnoreCase(scode, "video")) {
@@ -262,10 +281,10 @@ public class FileInfoController extends AbstractController {
     public static void main(String[] args) throws IOException {
 
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("upload.inteeer.com");
-        uploadUtil.setScode("video");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
-        Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/tt.mp4"));
+        uploadUtil.setDomainName("127.0.0.1:8081");
+        uploadUtil.setScode("img");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.jpg"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         IOUtils.write(bytes, new FileOutputStream(new File("/Users/mac/new1ss.jpg")));
