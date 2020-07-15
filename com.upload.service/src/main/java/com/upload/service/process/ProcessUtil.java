@@ -59,7 +59,8 @@ public class ProcessUtil {
             // 执行ffmpeg指令
             ProcessBuilder builder = new ProcessBuilder();
             builder.command(ffmpegCmds);
-            ffmpeg = builder.start();
+            ffmpeg=runtime.exec(commonds.get(0));
+//            ffmpeg = builder.start();
             log.info("--- 开始执行FFmpeg指令：--- 执行线程名：" + builder.toString());
 
             // 取出输出流和错误流的信息
