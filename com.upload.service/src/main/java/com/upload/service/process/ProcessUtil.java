@@ -56,11 +56,11 @@ public class ProcessUtil {
         Process ffmpeg = null;
         try {
             // 执行ffmpeg指令
-            ProcessBuilder builder = new ProcessBuilder();
-            builder.command(ffmpegCmds);
+//            ProcessBuilder builder = new ProcessBuilder();
+//            builder.command(ffmpegCmds);
             ffmpeg=runtime.exec(commonds.get(0));
 //            ffmpeg = builder.start();
-            log.info("--- 开始执行FFmpeg指令：--- 执行线程名：" + builder.toString());
+//            log.info("--- 开始执行FFmpeg指令：--- 执行线程名：" + builder.toString());
 
             // 取出输出流和错误流的信息
             // 注意：必须要取出ffmpeg在执行命令过程中产生的输出信息，如果不取的话当输出流信息填满jvm存储输出留信息的缓冲区时，线程就回阻塞住
