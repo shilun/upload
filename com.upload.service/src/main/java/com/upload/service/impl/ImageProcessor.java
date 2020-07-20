@@ -73,29 +73,29 @@ public class ImageProcessor {
         } catch (Exception e) {
             logger.error("读取图片失败",e);
         }
-//        Result tmpFlag = null;
-//        // 得到源图宽
-//        int width = 0;
-//        // 得到源图长
-//        int height = 0;
-//        try {
-//            // 构造Image对象
-//            tmpImg = ImageIO.read(tmpIn);
-//            // 得到源图宽
-//            width = tmpImg.getWidth(null);
-//            // 得到源图长
-//            height = tmpImg.getHeight(null);
-//        } catch (Exception e) {
-//            logger.error("图片保存大小",e);
-//            throw new ApplicationException("文件上传失败,请上传图片文件", e);
-//        }
-//        /**
-//         * 存放原图
-//         */
-//
-//        tmpFlag = resize(targetFile, width, height, targetFile.getPath());
+        Result tmpFlag = null;
+        // 得到源图宽
+        int width = 0;
+        // 得到源图长
+        int height = 0;
+        try {
+            // 构造Image对象
+            tmpImg = ImageIO.read(tmpIn);
+            // 得到源图宽
+            width = tmpImg.getWidth(null);
+            // 得到源图长
+            height = tmpImg.getHeight(null);
+        } catch (Exception e) {
+            logger.error("图片保存大小",e);
+            throw new ApplicationException("文件上传失败,请上传图片文件", e);
+        }
+        /**
+         * 存放原图
+         */
 
-//        int fileSize = ((Long) tmpFlag.get("size")).intValue();
+        tmpFlag = resize(targetFile, width, height, targetFile.getPath());
+
+        int fileSize = ((Long) tmpFlag.get("size")).intValue();
         /**
          * 默认尺寸压缩
          */
@@ -111,27 +111,27 @@ public class ImageProcessor {
                     tempFile=tempFile.substring(0,tempFile.lastIndexOf("."));
                     tempFile=tempFile+"_"+tmpResizeWidth+"x"+tmpResizeHeight;
                     tempFile=tempFile+prefix;
-//                    if (width > height) {
-//                        // 以宽度为基准，等比例放缩图片
-//                        int tmpHeight = (int) (height * tmpResizeWidth / width);
-//                        tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
-//                    } else {
-//                        // 以高度为基准，等比例缩放图片
-//                        int tmpWidth = (int) (width * tmpResizeHeight / height);
-                       resize(targetFile, tmpResizeWidth, tmpResizeHeight, tempFile);
-//                    }
-//                    if (!tmpFlag.isSuccess()) {
-//                        result.setSuccess(false);
-//                        return result;
-//                    } else {
-//                        fileSize = fileSize + ((Long) tmpFlag.get("size")).intValue();
-//                    }
+                    if (width > height) {
+                        // 以宽度为基准，等比例放缩图片
+                        int tmpHeight = (int) (height * tmpResizeWidth / width);
+                        tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
+                    } else {
+                        // 以高度为基准，等比例缩放图片
+                        int tmpWidth = (int) (width * tmpResizeHeight / height);
+                        tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile);
+                    }
+                    if (!tmpFlag.isSuccess()) {
+                        result.setSuccess(false);
+                        return result;
+                    } else {
+                        fileSize = fileSize + ((Long) tmpFlag.get("size")).intValue();
+                    }
                 }
             }
         }
 
         IOUtils.closeQuietly(tmpIn);
-//        result.addDefaultModel("size", fileSize);
+        result.addDefaultModel("size", fileSize);
         result.setSuccess(true);
         return result;
     }
