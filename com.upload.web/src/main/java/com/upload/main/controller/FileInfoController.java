@@ -281,9 +281,9 @@ public class FileInfoController extends AbstractController {
     public static void main(String[] args) throws IOException {
 
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("127.0.0.1:8081");
+        uploadUtil.setDomainName("upload.yetanvip.cn");
         uploadUtil.setScode("img");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        uploadUtil.setCode("8c0c97d2983479597130e1c96a25115");
         Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.jpg"));
         byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
