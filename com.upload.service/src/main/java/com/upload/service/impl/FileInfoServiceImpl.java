@@ -1,6 +1,7 @@
 package com.upload.service.impl;
 
 import com.common.exception.BizException;
+import com.common.httpclient.HttpClientUtil;
 import com.common.mongo.AbstractMongoService;
 import com.common.util.GlosseryEnumUtils;
 import com.common.util.StringUtils;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implements FileInfoService {
+    private HttpClientUtil httpClientUtil=new HttpClientUtil();
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(FileInfoServiceImpl.class);
     public static final String UPLOAD_ERROR_BIZ_KEY_EMPTY = "001";
@@ -305,7 +307,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 String path = realPath.substring(0, index);
                 String file = realPath.substring(index);
                 ffmPegUtils.doExportImage(path, file);
-                ffmPegUtils.split(path, file);
+//                httpClientUtil.sendHttpGet("http://localhost:3000?source="+realPath);
                 FileInfo temp = new FileInfo();
                 temp.setId(item.getId());
                 temp.setStatus(YesOrNoEnum.YES.getValue());
