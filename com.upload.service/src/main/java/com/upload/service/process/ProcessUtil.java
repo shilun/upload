@@ -1,17 +1,22 @@
 package com.upload.service.process;
 
+import com.common.exception.ApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * @author xdwang
@@ -38,9 +43,9 @@ public class ProcessUtil {
     }
 
 
-
     /**
      * 执行FFmpeg命令
+     *
      * @param commonds 要执行的FFmpeg命令
      * @return FFmpeg程序在执行命令过程中产生的各信息，执行出错时返回null
      */
@@ -53,24 +58,19 @@ public class ProcessUtil {
         log.info("--- 待执行的FFmpeg指令为：---" + ffmpegCmds);
 
         Runtime runtime = Runtime.getRuntime();
+        PrintStream inputStream = null;
+        PrintStream errorStream = null;
         Process ffmpeg = null;
+        CountDownLatch countDownLatch=new CountDownLatch(2);
         try {
-            // 执行ffmpeg指令
-//            ProcessBuilder builder = new ProcessBuilder();
-//            builder.command(ffmpegCmds);
-            ffmpeg=runtime.exec(commonds.get(0));
-//            ffmpeg = builder.start();
-//            log.info("--- 开始执行FFmpeg指令：--- 执行线程名：" + builder.toString());
-
-            // 取出输出流和错误流的信息
-            // 注意：必须要取出ffmpeg在执行命令过程中产生的输出信息，如果不取的话当输出流信息填满jvm存储输出留信息的缓冲区时，线程就回阻塞住
-            PrintStream errorStream = new PrintStream(ffmpeg.getErrorStream());
-            PrintStream inputStream = new PrintStream(ffmpeg.getInputStream());
+            ffmpeg = runtime.exec(commonds.get(0));
+            errorStream = new PrintStream(ffmpeg.getErrorStream(),countDownLatch);
+            inputStream = new PrintStream(ffmpeg.getInputStream(),countDownLatch);
             errorStream.start();
             inputStream.start();
+            countDownLatch.await();
             // 等待ffmpeg命令执行完
             ffmpeg.waitFor();
-
             // 获取执行结果字符串
             String result = errorStream.stringBuffer.append(inputStream.stringBuffer).toString();
 
@@ -82,9 +82,11 @@ public class ProcessUtil {
 
         } catch (Exception e) {
             log.error("--- FFmpeg命令执行出错！ --- 出错信息： " + e.getMessage());
-            return null;
+            throw new ApplicationException("ffmpeg.error");
 
         } finally {
+
+            ffmpeg.destroy();
             if (null != ffmpeg) {
                 ProcessKiller ffmpegKiller = new ProcessKiller(ffmpeg);
                 // JVM退出时，先通过钩子关闭FFmepg进程
@@ -94,6 +96,7 @@ public class ProcessUtil {
     }
 
 }
+
 /**
  * 在程序退出前结束已有的FFmpeg进程
  */
@@ -111,6 +114,7 @@ class ProcessKiller extends Thread {
         log.info("--- 已销毁FFmpeg进程 --- 进程名： " + process.toString());
     }
 }
+
 /**
  * 用于取出ffmpeg线程执行过程中产生的各种输出和错误流的信息
  */
@@ -119,9 +123,11 @@ class PrintStream extends Thread {
     InputStream inputStream = null;
     BufferedReader bufferedReader = null;
     StringBuffer stringBuffer = new StringBuffer();
+    CountDownLatch downLatch;
 
-    public PrintStream(InputStream inputStream) {
+    public PrintStream(InputStream inputStream, CountDownLatch downLatch) {
         this.inputStream = inputStream;
+        this.downLatch = downLatch;
     }
 
     @Override
@@ -139,16 +145,9 @@ class PrintStream extends Thread {
         } catch (Exception e) {
             log.error("--- 读取输入流出错了！--- 错误信息：" + e.getMessage());
         } finally {
-            try {
-                if (null != bufferedReader) {
-                    bufferedReader.close();
-                }
-                if (null != inputStream) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                log.error("--- 调用PrintStream读取输出流后，关闭流时出错！---");
-            }
+            IOUtils.closeQuietly(bufferedReader);
+            IOUtils.closeQuietly(inputStream);
+            downLatch.countDown();
         }
     }
 }

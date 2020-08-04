@@ -1,25 +1,27 @@
 package com.upload.service.utils;
 
+import com.common.exception.ApplicationException;
 import com.upload.service.process.ProcessUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Component;
+import ws.schild.jave.EncoderException;
+import ws.schild.jave.MultimediaInfo;
+import ws.schild.jave.MultimediaObject;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 @Component
+@Slf4j
 public class FFMPegUtils {
 
     @Resource
     private ProcessUtil processUtil;
-//    /***
+
+    //    /***
 //     * 返回分钟
 //     * @return
 //     */
@@ -223,10 +225,22 @@ public class FFMPegUtils {
 //
 //
 //    }
+    public long length(String file) {
+        MultimediaObject instance = new MultimediaObject(new File(file));
+        MultimediaInfo result = null;
+        try {
+            result = instance.getInfo();
+        } catch (EncoderException e) {
+            log.error("read.mp4.time.error message={}", e.getMessage());
+            throw new ApplicationException("read.mp4.time.error");
 
-    public  boolean split(String path, String file) {
-        if(!path.endsWith("/")){
-            path=path+"/";
+        }
+        return result.getDuration() / 1000;
+    }
+
+    public boolean split(String path, String file) {
+        if (!path.endsWith("/")) {
+            path = path + "/";
         }
         String[] extFile = file.split("\\.");
         File dirPath = new File(path + extFile[0]);
@@ -258,8 +272,7 @@ public class FFMPegUtils {
     }
 
 
-
-    public  void doExportImage(String path, String fileName) {
+    public void doExportImage(String path, String fileName) {
         String realFile = path + fileName;
         path = path + fileName.substring(0, fileName.indexOf("."));
         File movieDir = new File(path);
