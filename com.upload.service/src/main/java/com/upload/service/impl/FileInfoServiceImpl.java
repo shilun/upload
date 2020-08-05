@@ -285,6 +285,14 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
         this.insert(fileInfo);
+        if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
+            try {
+                Thread.sleep(2000);
+            }
+            catch (Exception e){
+                logger.error("视频Sleep错误");
+            }
+        }
         return fileRealName;
     }
 
