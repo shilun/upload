@@ -322,11 +322,11 @@ public class FileInfoController extends AbstractController {
     public static void main(String[] args) throws IOException {
 
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("upload.yetanvip.cn");
-        uploadUtil.setScode("video");
-        uploadUtil.setCode("8c0c97d2983479597130e1c96a25453");
+        uploadUtil.setDomainName("upload.inteeer.com");
+        uploadUtil.setScode("img");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/02c37714df3d4e7485c0a30ec2a26f80.mp4"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }
