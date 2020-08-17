@@ -59,14 +59,12 @@ public class ImageProcessor {
     /**
      *
      * @param targetFile
-     * @param aImageSize
+     * @param tmpDefaultSize
      * @return
      */
-    public Result saveImage(File targetFile, String[] aImageSize) {
+    public Result saveImage(File targetFile, String[] tmpDefaultSize) {
         Result result = new Result();
-        String[] tmpDefaultSize = systemConstants.getDefaultImageSize().split(",");
         Image tmpImg = null;
-
         InputStream tmpIn = null;
         try {
             tmpIn = new FileInputStream(targetFile);
@@ -89,11 +87,6 @@ public class ImageProcessor {
             logger.error("图片保存大小",e);
             throw new ApplicationException("文件上传失败,请上传图片文件", e);
         }
-        /**
-         * 存放原图
-         */
-
-        tmpFlag = resize(targetFile, width, height, targetFile.getPath());
 
         int fileSize = ((Long) tmpFlag.get("size")).intValue();
         /**

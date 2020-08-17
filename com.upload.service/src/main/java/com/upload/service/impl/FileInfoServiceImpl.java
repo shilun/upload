@@ -60,7 +60,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
     @Resource
     private FileUploadConfigService fileUploadConfigService;
-    private List<String> pics = new ArrayList();
     private List<String> videos = new ArrayList<>();
     @Value("${app.fileRootPath}")
     private String fileRootPath;
@@ -77,24 +76,10 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     private Executor executor;
 
     public FileInfoServiceImpl() {
-        this.pics.add("jpg");
-        this.pics.add("png");
-        this.pics.add("gif");
-        this.pics.add("jpeg");
-        videos.add("mp4");
+
     }
 
     private com.google.common.cache.Cache<String, FileUploadConfig> scodeCache = CacheBuilder.newBuilder().initialCapacity(10).concurrencyLevel(5).expireAfterWrite(1, TimeUnit.HOURS).build();
-
-    @Override
-    public void doVedioSplit() {
-        Criteria criteria = Criteria.where("type").is(FileTypeEnum.VIDEO.getValue()).and("status").is(YesOrNoEnum.NO.getValue()).and("hlsStatus").is(YesOrNoEnum.NO.getValue()).and("execCount").lte(3);
-        Query query = new Query(criteria);
-        Page<FileInfo> fileInfos = queryByPage(query, PageRequest.of(0, 100));
-        for (FileInfo item : fileInfos.getContent()) {
-            doVideoFile(item);
-        }
-    }
 
     public Map<String, Object> downFile(String key, String fileName) {
         Map<String, Object> result = new HashMap();
@@ -147,12 +132,12 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
             file = fileName + File.separator + fileName + size + prefix;
             fileRootPath = rootPath + scode + "/" + file;
-
             File imageFile = new File(fileRootPath);
             if (!imageFile.exists()) {
-                String sourceFile = rootPath + scode + "/" + fileName + File.separator + fileName + prefix;
-                String[] sizeStr = size.substring(1).split("x");
-                imageProcessor.saveImage(new File(sourceFile), Integer.parseInt(sizeStr[0]), Integer.parseInt(sizeStr[1]));
+                throw new BizException("data.error","非法操作,尺寸不存在");
+//                String sourceFile = rootPath + scode + "/" + fileName + File.separator + fileName + prefix;
+//                String[] sizeStr = size.substring(1).split("x");
+//                imageProcessor.resize(new File(sourceFile),Integer.parseInt(sizeStr[0]), Integer.parseInt(sizeStr[1]),fileRootPath);
             }
 
         }
@@ -200,7 +185,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         return null;
     }
 
-    private FileUploadConfig findConfigByKey(String key) {
+    public FileUploadConfig findConfigByKey(String key) {
         try {
             return scodeCache.get(key, new Callable<FileUploadConfig>() {
                 @Override
@@ -216,16 +201,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         return null;
     }
 
-    protected int vedioSize = 1048576;
-
-    public String upload(MultipartFile file, String key) {
+    public String upload(MultipartFile file, String key,FileUploadConfig config) {
         if (StringUtils.isBlank(key)) {
             throw new BizException("001", "业务码不能为空");
-        }
-
-        FileUploadConfig config = findConfigByKey(key);
-        if (config == null) {
-            throw new BizException("002", "业务码标识失败");
         }
         File pathFile = new File(this.fileRootPath + File.separator + config.getScode());
         if (!pathFile.exists()) {
@@ -241,13 +219,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         String extFile = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         File targetFile = null;
         String fileRealName = null;
-        boolean other = true;
         String uuid = StringUtils.getUUID();
         if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
-            if (!this.pics.contains(extFile)) {
-                throw new BizException("004", "图片类型不符合规范");
-            }
-
             File picDir = new File(pathFile + File.separator + uuid);
             picDir.mkdirs();
             fileRealName = uuid + "." + extFile;
@@ -257,8 +230,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             } catch (Exception e) {
                 throw new BizException("005", "文件上传失败，请重试");
             }
-            imageProcessor.saveImage(targetFile, null);
-            other = false;
         } else {
             File picDir = pathFile;
             picDir.mkdirs();
@@ -296,9 +267,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         return fileRealName;
     }
 
-    public List<String> getPictures() {
-        return this.pics;
-    }
+
 
     private void doVideoFile(final FileInfo item) {
         Runnable run = () -> {

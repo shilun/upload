@@ -17,10 +17,19 @@ public abstract interface FileInfoService
   public abstract byte[] httpDown(String paramString1, String paramString2,String size);
   public abstract File httpDown(String paramString1, String paramString2);
   
-  public abstract String upload(MultipartFile paramMultipartFile, String paramString);
+  public abstract String upload(MultipartFile paramMultipartFile, String key,FileUploadConfig config);
   
-  public abstract List<String> getPictures();
+  /**
+   * 根据key查找业务
+   * @param key
+   * @return
+   */
+  public FileUploadConfig findConfigByKey(String key);
 
-  public void doVedioSplit();
+  /**
+   * 根据短码获取业务
+   * @param scode
+   * @return
+   */
   public FileUploadConfig findConfigByScode(String scode);
 }

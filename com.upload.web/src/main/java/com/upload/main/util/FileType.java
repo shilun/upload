@@ -5,10 +5,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class FileType {
@@ -129,6 +126,15 @@ public class FileType {
         }
         return res;
     }
+    /**
+     * 获取文件类型
+     * @param bytes
+     * @return
+     */
+    public static String getFileType(byte[] bytes) {
+        return  bytesToHexString(bytes);
+    }
+
 
     public static boolean isMp4(byte[] file) {
         byte[] bytes = Arrays.copyOf(file, 10);

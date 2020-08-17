@@ -8,7 +8,9 @@ import com.common.web.AbstractController;
 import com.common.web.IExecute;
 import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
+import com.upload.main.util.FileType;
 import com.upload.service.FileInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,10 +29,14 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping
+@Slf4j
 public class FileInfoController extends AbstractController {
 
 
@@ -38,6 +44,14 @@ public class FileInfoController extends AbstractController {
     @Resource
     private FileInfoService fileInfoService;
 
+    private static List<String> images = new ArrayList<>();
+
+    static {
+        images.add("jpg");
+        images.add("png");
+        images.add("gif");
+        images.add("jpeg");
+    }
 
     @RequestMapping("/download")
     public void donwload(DownloadDto dto, HttpServletResponse response) throws Exception {
@@ -89,14 +103,14 @@ public class FileInfoController extends AbstractController {
     }
 
     @RequestMapping("{size}/{scode}/{file}.{fileType}")
-    public void downloadImageSize(@PathVariable String size, @PathVariable String scode, @PathVariable String file,  @PathVariable String fileType, HttpServletResponse response) {
+    public void downloadImageSize(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String fileType, HttpServletResponse response) {
         if (StringUtils.endsWithIgnoreCase(scode, "video")) {
             return;
         }
         try {
             byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
             String typeName = "application/x-download";
-            if (this.fileInfoService.getPictures().contains(fileType)) {
+            if (images.contains(fileType)) {
                 typeName = "image/" + fileType;
                 file = "";
             } else {
@@ -107,6 +121,7 @@ public class FileInfoController extends AbstractController {
             throw new BizException(e);
         }
     }
+
     @RequestMapping("{size}/{scode}/{file}/{name}.{fileType}")
     public void downloadImageSizeResource(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String name, @PathVariable String fileType, HttpServletResponse response) {
         if (StringUtils.endsWithIgnoreCase(scode, "video")) {
@@ -115,7 +130,7 @@ public class FileInfoController extends AbstractController {
         try {
             byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, size);
             String typeName = "application/x-download";
-            if (this.fileInfoService.getPictures().contains(fileType)) {
+            if (images.contains(fileType)) {
                 typeName = "image/" + fileType;
                 file = "";
             } else {
@@ -182,7 +197,7 @@ public class FileInfoController extends AbstractController {
             if (configByScode.getHttpDown().intValue() == YesOrNoEnum.NO.getValue()) {
                 throw new BizException("data.error", "非法操作");
             }
-            if (this.fileInfoService.getPictures().contains(fileType)) {
+            if (images.contains(fileType)) {
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "image/" + fileType;
                 file = "";
@@ -211,10 +226,10 @@ public class FileInfoController extends AbstractController {
     }
 
     @RequestMapping("{scode}/{file}/default.{fileType}")
-    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType,HttpServletResponse response) {
+    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equalsIgnoreCase("m3u8")) {
-                downloadPlayerIndex(scode,file, response);
+                downloadPlayerIndex(scode, file, response);
                 return;
             }
             if (scode.startsWith("s")) {
@@ -271,9 +286,35 @@ public class FileInfoController extends AbstractController {
     @RequestMapping({"/upload"})
     @ResponseBody
     public Map<String, Object> upload(final MultipartFile file, final String key) {
+        FileUploadConfig config = null;
+        try {
+            config = fileInfoService.findConfigByKey(key);
+            if (config == null) {
+                throw new BizException("002", "业务码标识失败");
+            }
+            byte[] bytes = file.getBytes();
+            byte[] typeData = Arrays.copyOf(bytes, 10);
+            if (config.getFileType() == 1) {
+                {
+                    String fileCode = FileType.getFileType(typeData);
+                    if (!images.contains(fileCode)) {
+                        throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
+                    }
+                }
+            }
+            if (config.getFileType() == 3) {
+                if (!FileType.isMp4(typeData)) {
+                    throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
+                }
+            }
+        } catch (Exception e) {
+            log.error("upload.error", e);
+            throw new BizException("upload.error", "文件上传失败");
+        }
+        FileUploadConfig cfg = config;
         return buildMessage(new IExecute() {
             public Object getData() {
-                return fileInfoService.upload(file, key);
+                return fileInfoService.upload(file, key, cfg);
             }
         });
     }
@@ -284,7 +325,7 @@ public class FileInfoController extends AbstractController {
         uploadUtil.setDomainName("upload.yetanvip.cn");
         uploadUtil.setScode("video");
         uploadUtil.setCode("8c0c97d2983479597130e1c96a25453");
-        for(int i=0;i<100;i++) {
+        for (int i = 0; i < 100; i++) {
             Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/02c37714df3d4e7485c0a30ec2a26f80.mp4"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
