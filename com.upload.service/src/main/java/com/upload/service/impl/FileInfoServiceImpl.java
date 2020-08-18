@@ -212,13 +212,13 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         if (StringUtils.isBlank(fileName)) {
             throw new BizException("004", "文件名不符合规范");
         }
-        String extFile = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        String extFile = fileName.substring(fileName.lastIndexOf(".") ).toLowerCase();
         File targetFile = null;
         String fileRealName = null;
         String uuid = StringUtils.getUUID();
         if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
             try {
-                file.transferTo(pathFile);
+                file.transferTo(new File(this.fileRootPath + File.separator + config.getScode()+File.separator+uuid+extFile));
             } catch (Exception e) {
                 throw new BizException("005", "文件上传失败，请重试");
             }
