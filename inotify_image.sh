@@ -3,12 +3,10 @@ inotifywait -mq --timefmt '%d/%m/%y %H:%M' --format '%T %w%f%e' -e create $src |
 do
         file=${file/CREATE/}
         file=${file#*/}
-        echo "$file"
         filetype=${file##*.}
         if [[ $file == *ISDIR ]]; then
                 echo "dir"
         else
-                echo "$file"
                 tempfilename=${file##*/}
                 name=${tempfilename%.*}
                 eval "mkdir /data/img/${name} "
