@@ -304,6 +304,9 @@ public class FileInfoController extends AbstractController {
                         if (!FileType.isMp4(typeData)) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
+                    } catch (BizException e) {
+                        log.error("文件上传失败", e);
+                        throw e;
                     } catch (Exception e) {
                         log.error("文件上传失败", e);
                         throw new BizException("data.error", "文件上传失败");
