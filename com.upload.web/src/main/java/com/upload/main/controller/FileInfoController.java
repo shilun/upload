@@ -294,7 +294,7 @@ public class FileInfoController extends AbstractController {
             }
             byte[] bytes = file.getBytes();
             byte[] typeData = Arrays.copyOf(bytes, 10);
-            if (config.getFileType() == 1) {
+            if (config.getFileType() == 2) {
                 {
                     String fileCode = FileType.getFileType(typeData);
                     if (!images.contains(fileCode)) {
@@ -326,7 +326,7 @@ public class FileInfoController extends AbstractController {
         uploadUtil.setScode("img");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.txt"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }
