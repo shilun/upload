@@ -13,6 +13,7 @@ import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import com.upload.service.utils.FFMPegUtils;
+import com.upload.util.constants.SystemConstants;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     private List<String> videos = new ArrayList<>();
     @Value("${app.fileRootPath}")
     private String fileRootPath;
-
+    @Resource
+    private SystemConstants systemConstants;
     @Resource
     private RedisTemplate redisTemplate;
     @Resource
@@ -240,6 +242,14 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
         this.insert(fileInfo);
+        if (config.getFileType().intValue() == FileTypeEnum.PICTURE.getValue()) {
+            String[] itemSize = systemConstants.getDefaultImageSize().split(",");
+            for(String item:itemSize){
+                String[] xes = item.split("x");
+                String target=pathFile+File.separator+fileRealName;
+                imageProcessor.resize(targetFile,Integer.parseInt(xes[0]),Integer.parseInt(xes[1]),target);
+            }
+        }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
             try {
                 Thread.sleep(2000);
