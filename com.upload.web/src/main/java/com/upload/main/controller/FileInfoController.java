@@ -298,10 +298,10 @@ public class FileInfoController extends AbstractController {
                         byte[] bytes = file.getBytes();
                         byte[] typeData = Arrays.copyOf(bytes, 10);
                         String fileCode = FileType.getFileType(typeData);
-                        if (!images.contains(fileCode)) {
+                        if (config.getFileType() == 2 && !images.contains(fileCode)) {
                             throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
                         }
-                        if (!FileType.isMp4(typeData)) {
+                        if (config.getFileType() == 3 && !FileType.isMp4(typeData)) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
                     } catch (BizException e) {
@@ -324,7 +324,7 @@ public class FileInfoController extends AbstractController {
         uploadUtil.setScode("img");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.txt"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }
