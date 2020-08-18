@@ -132,7 +132,7 @@ public class FileType {
      * @return
      */
     public static String getFileType(byte[] bytes) {
-        return  bytesToHexString(bytes);
+        return  FILE_TYPE_MAP.get(bytesToHexString(bytes));
     }
 
 

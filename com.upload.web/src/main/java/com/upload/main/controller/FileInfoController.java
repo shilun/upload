@@ -326,7 +326,7 @@ public class FileInfoController extends AbstractController {
         uploadUtil.setScode("img");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.txt"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }
