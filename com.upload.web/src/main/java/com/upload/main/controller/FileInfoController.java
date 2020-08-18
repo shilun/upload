@@ -90,7 +90,6 @@ public class FileInfoController extends AbstractController {
     }
 
 
-
     @RequestMapping("{size}/{scode}/{file}.{fileType}")
     public void downloadImageSize(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String fileType, HttpServletResponse response) {
         if (StringUtils.endsWithIgnoreCase(scode, "video")) {
@@ -187,9 +186,18 @@ public class FileInfoController extends AbstractController {
                 throw new BizException("data.error", "非法操作");
             }
             if (images.contains(fileType)) {
-                String path = fileRootPath + "/" + scode + "/" + file + "."+fileType;
+                String path = fileRootPath + "/" + scode + "/" + file + "." + fileType;
+                //对老图片路径进行处理
+                File tempFile = new File(path);
+                if (!tempFile.exists()) {
+                    byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
+                    String typeName = "image/" + fileType;
+                    file = "";
+                    download(response, data, typeName, file);
+                    return;
+                }
                 String typeName = "image/" + fileType;
-                download(response,new File(path),typeName,"");
+                download(response, new File(path), typeName, "");
                 return;
             } else {
                 file = file + "." + fileType;
