@@ -17,10 +17,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implements FileInfoService {
-    private HttpClientUtil httpClientUtil=new HttpClientUtil();
+    private HttpClientUtil httpClientUtil = new HttpClientUtil();
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(FileInfoServiceImpl.class);
     public static final String UPLOAD_ERROR_BIZ_KEY_EMPTY = "001";
@@ -121,8 +117,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             rootPath = this.fileRootPath;
         }
         FileUploadConfig config = findConfigByScode(scode);
-        if(config.getFileType()==FileTypeEnum.VIDEO.getValue().intValue()){
-            file=file.substring(0, file.indexOf("."))+"/default.jpeg";
+        if (config.getFileType() == FileTypeEnum.VIDEO.getValue().intValue()) {
+            file = file.substring(0, file.indexOf(".")) + "/default.jpeg";
         }
         if (config.getFileType() == FileTypeEnum.PICTURE.getValue().intValue()) {
             String prefix = file.substring(file.lastIndexOf("."));
@@ -134,7 +130,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             fileRootPath = rootPath + scode + "/" + file;
             File imageFile = new File(fileRootPath);
             if (!imageFile.exists()) {
-                throw new BizException("data.error","非法操作,尺寸不存在");
+                throw new BizException("data.error", "非法操作,尺寸不存在");
 //                String sourceFile = rootPath + scode + "/" + fileName + File.separator + fileName + prefix;
 //                String[] sizeStr = size.substring(1).split("x");
 //                imageProcessor.resize(new File(sourceFile),Integer.parseInt(sizeStr[0]), Integer.parseInt(sizeStr[1]),fileRootPath);
@@ -201,7 +197,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         return null;
     }
 
-    public String upload(MultipartFile file, String key,FileUploadConfig config) {
+    public String upload(MultipartFile file, String key, FileUploadConfig config) {
         if (StringUtils.isBlank(key)) {
             throw new BizException("001", "业务码不能为空");
         }
@@ -221,12 +217,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         String fileRealName = null;
         String uuid = StringUtils.getUUID();
         if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
-            File picDir = new File(pathFile + File.separator + uuid);
-            picDir.mkdirs();
-            fileRealName = uuid + "." + extFile;
-            targetFile = new File(picDir, fileRealName);
             try {
-                file.transferTo(targetFile.getAbsoluteFile());
+                file.transferTo(pathFile);
             } catch (Exception e) {
                 throw new BizException("005", "文件上传失败，请重试");
             }
@@ -259,14 +251,12 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
             try {
                 Thread.sleep(2000);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 logger.error("视频Sleep错误");
             }
         }
         return fileRealName;
     }
-
 
 
     private void doVideoFile(final FileInfo item) {
