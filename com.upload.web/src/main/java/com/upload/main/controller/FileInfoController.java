@@ -89,18 +89,7 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    @RequestMapping("/{scode}/{file}/{item}.ts")
-    public void downloadVideo(@PathVariable String scode, @PathVariable String file, @PathVariable String item, HttpServletResponse response) throws Exception {
-        FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
-        if (configByScode.getFileType() != FileTypeEnum.VIDEO.getValue().intValue()) {
-            throw new BizException("data.error", "非法操作");
-        }
-        String path = fileRootPath + "/" + configByScode.getScode() + "/" + file + "/" + item + ".ts";
-        File realFile = new File(path);
-        if (realFile.exists()) {
-            downVideo(path, response);
-        }
-    }
+
 
     @RequestMapping("{size}/{scode}/{file}.{fileType}")
     public void downloadImageSize(@PathVariable String size, @PathVariable String scode, @PathVariable String file, @PathVariable String fileType, HttpServletResponse response) {
@@ -198,10 +187,9 @@ public class FileInfoController extends AbstractController {
                 throw new BizException("data.error", "非法操作");
             }
             if (images.contains(fileType)) {
-                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
+                String path = fileRootPath + "/" + scode + "/" + file + "."+fileType;
                 String typeName = "image/" + fileType;
-                file = "";
-                download(response, data, typeName, file);
+                download(response,new File(path),typeName,"");
                 return;
             } else {
                 file = file + "." + fileType;
@@ -269,6 +257,33 @@ public class FileInfoController extends AbstractController {
                 response.setHeader("Content-Length", String.valueOf(file.length));
             }
             bis = new ByteArrayInputStream(file);
+
+            bos = new BufferedOutputStream(response.getOutputStream());
+            byte[] buff = new byte[2048];
+            int bytesRead;
+            while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
+                bos.write(buff, 0, bytesRead);
+            }
+            bos.flush();
+        } finally {
+            IOUtils.closeQuietly(bis);
+            IOUtils.closeQuietly(bos);
+        }
+    }
+
+    private void download(HttpServletResponse response, File file, String contentType, String realName) throws Exception {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
+        FileInputStream bis = null;
+        BufferedOutputStream bos = null;
+        try {
+            response.setContentType(contentType);
+            if (StringUtils.isNotBlank(realName)) {
+                response.setHeader("Content-disposition", "attachment; filename=" + new String(realName.getBytes("utf-8"), "ISO8859-1"));
+            }
+            bis = new FileInputStream(file);
 
             bos = new BufferedOutputStream(response.getOutputStream());
             byte[] buff = new byte[2048];
