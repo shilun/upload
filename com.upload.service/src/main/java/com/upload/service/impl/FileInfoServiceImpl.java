@@ -217,10 +217,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         String fileRealName = null;
         String uuid = StringUtils.getUUID();
 
-        File picDir = pathFile;
-        picDir.mkdirs();
         fileRealName = uuid + "." + extFile;
-        targetFile = new File(picDir, fileRealName);
+        targetFile = new File(pathFile, fileRealName);
         try {
             file.transferTo(targetFile.getAbsoluteFile());
         } catch (Exception e) {
