@@ -286,35 +286,30 @@ public class FileInfoController extends AbstractController {
     @RequestMapping({"/upload"})
     @ResponseBody
     public Map<String, Object> upload(final MultipartFile file, final String key) {
-        FileUploadConfig config = null;
-        try {
-            config = fileInfoService.findConfigByKey(key);
-            if (config == null) {
-                throw new BizException("002", "业务码标识失败");
-            }
-            byte[] bytes = file.getBytes();
-            byte[] typeData = Arrays.copyOf(bytes, 10);
-            if (config.getFileType() == 2) {
-                {
-                    String fileCode = FileType.getFileType(typeData);
-                    if (!images.contains(fileCode)) {
-                        throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
-                    }
-                }
-            }
-            if (config.getFileType() == 3) {
-                if (!FileType.isMp4(typeData)) {
-                    throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
-                }
-            }
-        } catch (Exception e) {
-            log.error("upload.error", e);
-            throw new BizException("upload.error", "文件上传失败");
-        }
-        FileUploadConfig cfg = config;
+
         return buildMessage(new IExecute() {
             public Object getData() {
-                return fileInfoService.upload(file, key, cfg);
+                FileUploadConfig config = fileInfoService.findConfigByKey(key);
+                if (config == null) {
+                    throw new BizException("002", "业务码标识失败");
+                }
+                if (config.getFileType() != 1) {
+                    try {
+                        byte[] bytes = file.getBytes();
+                        byte[] typeData = Arrays.copyOf(bytes, 10);
+                        String fileCode = FileType.getFileType(typeData);
+                        if (!images.contains(fileCode)) {
+                            throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
+                        }
+                        if (!FileType.isMp4(typeData)) {
+                            throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
+                        }
+                    } catch (Exception e) {
+                        log.error("文件上传失败", e);
+                        throw new BizException("data.error", "文件上传失败");
+                    }
+                }
+                return fileInfoService.upload(file, key, config);
             }
         });
     }
@@ -326,7 +321,7 @@ public class FileInfoController extends AbstractController {
         uploadUtil.setScode("img");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.txt"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }
