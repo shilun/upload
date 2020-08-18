@@ -216,23 +216,17 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         File targetFile = null;
         String fileRealName = null;
         String uuid = StringUtils.getUUID();
-        if (FileTypeEnum.PICTURE.getValue().intValue() == config.getFileType()) {
-            try {
-                file.transferTo(new File(this.fileRootPath + File.separator + config.getScode()+File.separator+fileRealName+"."+extFile));
-            } catch (Exception e) {
-                throw new BizException("005", "文件上传失败，请重试");
-            }
-        } else {
-            File picDir = pathFile;
-            picDir.mkdirs();
-            fileRealName = uuid + "." + extFile;
-            targetFile = new File(picDir, fileRealName);
-            try {
-                file.transferTo(targetFile.getAbsoluteFile());
-            } catch (Exception e) {
-                throw new BizException("005", "文件上传失败，请重试");
-            }
+
+        File picDir = pathFile;
+        picDir.mkdirs();
+        fileRealName = uuid + "." + extFile;
+        targetFile = new File(picDir, fileRealName);
+        try {
+            file.transferTo(targetFile.getAbsoluteFile());
+        } catch (Exception e) {
+            throw new BizException("005", "文件上传失败，请重试");
         }
+
         FileInfo fileInfo = new FileInfo();
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
             fileRealName = uuid + "/default.m3u8";
