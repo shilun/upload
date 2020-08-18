@@ -246,7 +246,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             String[] itemSize = systemConstants.getDefaultImageSize().split(",");
             for(String item:itemSize){
                 String[] xes = item.split("x");
-                String target=pathFile+File.separator+fileRealName;
+                String target=pathFile+File.separator+uuid+File.separator+uuid+"_"+item+"." + extFile;
                 imageProcessor.resize(targetFile,Integer.parseInt(xes[0]),Integer.parseInt(xes[1]),target);
             }
         }
