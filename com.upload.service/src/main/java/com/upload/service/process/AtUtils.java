@@ -25,14 +25,13 @@ public class AtUtils {
             root = root + "/";
         }
         StringBuilder builder = new StringBuilder();
-        builder.append(" mkdir ").append(root).append(name).append(" -p").append("\n");
+        builder.append("eval \"mkdir ").append(root).append(name).append(" -p").append("\n\"");
         String path = root + name;
-        builder.append(" ffmpeg -i ").append(path).append(".mp4 -r 1 -t 1  ").append(path).append("/default.jpeg").append("\n");
-        builder.append(" ffmpeg -i ").append(path).append(".mp4 -metadata rotate=\"\" ").append(path).append("/temp.mp4").append("\n");
-        builder.append(" ffmpeg -i ").append(path).append("/temp.mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list ").append(path).append("/default.m3u8 -segment_time 2 ").append(path).append("/%03d.ts").append("\n");
-        builder.append(" rm -rf ").append(root).append(name).append(".task").append("\n");
-        builder.append(" rm -rf ").append(path).append("/temp.mp4");
-        System.out.println(builder.toString());
+        builder.append("eval \"ffmpeg -i ").append(path).append(".mp4 -r 1 -t 1  ").append(path).append("/default.jpeg").append("\n\"");
+        builder.append("eval \"ffmpeg -i ").append(path).append(".mp4 -metadata rotate=\"\" ").append(path).append("/temp.mp4").append("\n\"");
+        builder.append("eval \"ffmpeg -i ").append(path).append("/temp.mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list ").append(path).append("/default.m3u8 -segment_time 2 ").append(path).append("/%03d.ts").append("\n\"");
+        builder.append("eval \"rm -rf ").append(root).append(name).append(".task").append("\n\"");
+        builder.append("eval \"rm -rf ").append(path).append("/temp.mp4\"");
         try {
             IOUtils.write(builder.toString().getBytes(), new FileOutputStream(new File(root + name + ".task")));
         } catch (IOException e) {
