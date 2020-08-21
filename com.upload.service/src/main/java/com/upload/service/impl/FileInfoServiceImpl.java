@@ -12,6 +12,7 @@ import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
+import com.upload.service.process.AtUtils;
 import com.upload.service.utils.FFMPegUtils;
 import com.upload.util.constants.SystemConstants;
 import org.apache.commons.io.IOUtils;
@@ -67,8 +68,10 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     @Resource
     private ImageProcessor imageProcessor;
 
+
+
     @Resource
-    private FFMPegUtils ffmPegUtils;
+    private AtUtils atUtils;
 
     @Resource(name = "asyncWorkerExecutor")
     private Executor executor;
@@ -251,40 +254,11 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
         }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                logger.error("视频Sleep错误");
-            }
+            atUtils.appendFile(fileRootPath,uuid);
         }
         return fileRealName;
     }
 
 
-    private void doVideoFile(final FileInfo item) {
-        Runnable run = () -> {
-            try {
-                if (!fileRootPath.endsWith("/")) {
-                    fileRootPath = fileRootPath + "/";
-                }
-                String realPath = fileRootPath + item.getPath();
-                realPath = realPath.replace("/default.m3u8", ".mp4");
-                int index = realPath.lastIndexOf("/");
-                String path = realPath.substring(0, index);
-                String file = realPath.substring(index);
-                ffmPegUtils.doExportImage(path, file);
-//                httpClientUtil.sendHttpGet("http://localhost:3000?source="+realPath);
-                FileInfo temp = new FileInfo();
-                temp.setId(item.getId());
-                temp.setStatus(YesOrNoEnum.YES.getValue());
-                temp.setHlsStatus(YesOrNoEnum.YES.getValue());
-                save(temp);
-                return;
-            } catch (Exception e) {
-                logger.error("doVideoFile.error", e);
-            }
-            inc(item.getId(), "execCount", 1);
-        };
-        executor.execute(run);
-    }
+
 }

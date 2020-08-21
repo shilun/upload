@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,8 +30,8 @@ import java.util.concurrent.Executors;
 @Component
 public class ProcessUtil {
 
-    ExecutorService executor = Executors.newFixedThreadPool(2);
-
+    @Resource
+    private Executor executor;
     /**
      * @param cmdStr 命令字符串
      * @descrption 执行外部exe公用方法
@@ -37,25 +39,17 @@ public class ProcessUtil {
      * @create 2012-7-20下午22:24:32
      */
     public void execProcess(String cmdStr) {
-        ArrayList<String> commonds = new ArrayList<>();
-        commonds.add(cmdStr);
-        String s = executeCommand(commonds);
+        String s = executeCommand(cmdStr);
     }
 
 
     /**
      * 执行FFmpeg命令
      *
-     * @param commonds 要执行的FFmpeg命令
+     * @param commond 要执行的FFmpeg命令
      * @return FFmpeg程序在执行命令过程中产生的各信息，执行出错时返回null
      */
-    public static String executeCommand(List<String> commonds) {
-        if (CollectionUtils.isEmpty(commonds)) {
-            log.error("--- 指令执行失败，因为要执行的FFmpeg指令为空！ ---");
-            return null;
-        }
-        LinkedList<String> ffmpegCmds = new LinkedList<>(commonds);
-        log.info("--- 待执行的FFmpeg指令为：---" + ffmpegCmds);
+    public static String executeCommand(String commond) {
 
 
         Runtime runtime = Runtime.getRuntime();
@@ -64,7 +58,7 @@ public class ProcessUtil {
         Process ffmpeg = null;
         CountDownLatch countDownLatch=new CountDownLatch(2);
         try {
-            ffmpeg = runtime.exec(commonds.get(0));
+            ffmpeg = runtime.exec(commond);
             errorStream = new PrintStream(ffmpeg.getErrorStream(),countDownLatch);
             inputStream = new PrintStream(ffmpeg.getInputStream(),countDownLatch);
             errorStream.start();
@@ -76,9 +70,8 @@ public class ProcessUtil {
             String result = errorStream.stringBuffer.append(inputStream.stringBuffer).toString();
 
             // 输出执行的命令信息
-            String cmdStr = Arrays.toString(ffmpegCmds.toArray()).replace(",", "");
-            String resultStr = StringUtils.isBlank(result) ? "【异常】" : "正常";
-            log.info("--- 已执行的FFmepg命令： ---" + cmdStr + " 已执行完毕,执行结果： " + resultStr);
+            String resultStr = StringUtils.isBlank(commond) ? "【异常】" : "正常";
+            log.info("--- 已执行的FFmepg命令： ---" + commond + " 已执行完毕,执行结果： " + resultStr);
             return result;
 
         } catch (Exception e) {
