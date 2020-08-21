@@ -43,7 +43,7 @@ public class AtUtils {
             log.error("生成任务指令文件失败");
         }
 
-        processUtil.execProcess("at now -f " + root + "task/" + name + ".task");
+        processUtil.execProcess("at now -M -f " + root + "task/" + name + ".task");
     }
 
     public void reDoTaskFile(String root) {
