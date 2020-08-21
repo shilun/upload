@@ -38,12 +38,12 @@ public class AtUtils {
         builder.append("eval \"rm -rf ").append(root).append("/task/").append(name).append(".task").append("\n\"");
         builder.append("eval \"rm -rf ").append(path).append("/temp.mp4\"");
         try {
-            IOUtils.write(builder.toString().getBytes(), new FileOutputStream(new File(root + "/task/" + name + ".task")));
+            IOUtils.write(builder.toString().getBytes(), new FileOutputStream(new File(root + "task/" + name + ".task")));
         } catch (IOException e) {
             log.error("生成任务指令文件失败");
         }
 
-        processUtil.execProcess("at now -f " + root + "/task/" + name + ".task");
+        processUtil.execProcess("at now -f " + root + "task/" + name + ".task");
     }
 
     public void reDoTaskFile(String root) {
