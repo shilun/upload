@@ -28,9 +28,9 @@ public class AtUtils {
         StringBuilder builder = new StringBuilder();
         builder.append("mkdir ").append(root).append(name).append(" -p").append("\n");
         String path = root + name;
-        builder.append("eval \"ffmpeg -i ").append(path).append(".mp4 -ss 1 -f image2  ").append(path).append("/default.jpeg").append("\n");
-        builder.append("eval \"ffmpeg -i ").append(path).append(".mp4 -metadata rotate=\\\"\\\" ").append(path).append("/.temp.mp4\"").append("\n");
-        builder.append("eval \"ffmpeg -i ").append(path).append("/.temp.mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list ").append(path).append("/default.m3u8 -segment_time 2 ").append(path).append("/%03d.ts\"").append("\n");
+        builder.append("ffmpeg -i ").append(path).append(".mp4 -ss 1 -f image2  ").append(path).append("/default.jpeg").append("\n");
+        builder.append("ffmpeg -i ").append(path).append(".mp4 -metadata rotate=\\\"\\\" ").append(path).append("/.temp.mp4").append("\n");
+        builder.append("ffmpeg -i ").append(path).append("/.temp.mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list ").append(path).append("/default.m3u8 -segment_time 2 ").append(path).append("/%03d.ts").append("\n");
         builder.append("rm -rf ").append(root).append(name).append(".task");
         System.out.println(builder.toString());
         try {
