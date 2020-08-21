@@ -344,10 +344,10 @@ public class FileInfoController extends AbstractController {
 
         UploadUtil uploadUtil = new UploadUtil();
         uploadUtil.setDomainName("upload.inteeer.com");
-        uploadUtil.setScode("img");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+        uploadUtil.setScode("video");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/2ebae7a17dbb40eca7aaedc0df906857.mp4"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }

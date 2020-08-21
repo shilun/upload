@@ -13,7 +13,6 @@ import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
 import com.upload.service.process.AtUtils;
-import com.upload.service.utils.FFMPegUtils;
 import com.upload.util.constants.SystemConstants;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -67,7 +66,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     private RedisTemplate redisTemplate;
     @Resource
     private ImageProcessor imageProcessor;
-
 
 
     @Resource
@@ -247,18 +245,24 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         this.insert(fileInfo);
         if (config.getFileType().intValue() == FileTypeEnum.PICTURE.getValue()) {
             String[] itemSize = systemConstants.getDefaultImageSize().split(",");
-            for(String item:itemSize){
+            for (String item : itemSize) {
                 String[] xes = item.split("x");
-                String target=pathFile+File.separator+uuid+File.separator+uuid+"_"+item+"." + extFile;
-                imageProcessor.resize(targetFile,Integer.parseInt(xes[0]),Integer.parseInt(xes[1]),target);
+                String target = pathFile + File.separator + uuid + File.separator + uuid + "_" + item + "." + extFile;
+                imageProcessor.resize(targetFile, Integer.parseInt(xes[0]), Integer.parseInt(xes[1]), target);
             }
         }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            atUtils.appendFile(fileRootPath,uuid);
+            String rootPath = fileRootPath;
+            if (!rootPath.endsWith("/")) {
+                rootPath = rootPath + "/";
+            }
+            if (!rootPath.startsWith("/")) {
+                rootPath = "/" + rootPath;
+            }
+            atUtils.appendFile(rootPath + config.getScode(), uuid);
         }
         return fileRealName;
     }
-
 
 
 }
