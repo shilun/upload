@@ -25,7 +25,6 @@ public class VideoJobHandler extends IJobHandler {
         } catch (Exception e) {
             log.error("执行视频文件分片重试失败", e);
         }
-        log.error("autoConfirm-end");
         return SUCCESS;
     }
 
