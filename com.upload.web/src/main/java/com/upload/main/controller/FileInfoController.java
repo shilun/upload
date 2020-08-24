@@ -145,7 +145,9 @@ public class FileInfoController extends AbstractController {
                 return;
             }
             if (scode.startsWith("s")) {
-                response.sendRedirect(fileInfoService.findById(file).getVideoImage());
+                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
+                String typeName = "image/" + fileType;
+                download(response, data, typeName, file);
                 return;
             }
             FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
