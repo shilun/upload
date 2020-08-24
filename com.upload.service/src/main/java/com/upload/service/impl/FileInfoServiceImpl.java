@@ -254,6 +254,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         String path = config.getScode() + "/" + fileRealName;
         fileInfo.setPath(path);
         fileInfo.setSize(Integer.valueOf((int) targetFile.length() / 1024));
+        fileInfo.setId(uuid);
         this.insert(fileInfo);
         if (config.getFileType().intValue() == FileTypeEnum.PICTURE.getValue()) {
             String[] itemSize = systemConstants.getDefaultImageSize().split(",");
