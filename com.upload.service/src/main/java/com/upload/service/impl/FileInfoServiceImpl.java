@@ -273,15 +273,12 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 rootPath = "/" + rootPath;
             }
             File fileFile = targetFile;
-            String finalRootPath = rootPath;
-            File finalTargetFile = targetFile;
             executor.execute(() -> {
                 try {
-                    atUtils.appendFile(finalRootPath + config.getScode(), uuid);
                     String id = videoUtil.uploadVideo(file.getName(), fileFile.getPath());
                     videoUtil.submitTranscodeJobs(id);
                     upProperty(fileInfo.getId(), "videoId", id);
-                    finalTargetFile.delete();
+                    fileFile.delete();
                 } catch (Exception e) {
                     logger.error("文件删除失败", e);
                 }
