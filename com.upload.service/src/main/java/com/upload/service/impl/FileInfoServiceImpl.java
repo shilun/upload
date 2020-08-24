@@ -114,6 +114,10 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 }
             }
             if (playUrlOk) {
+                String imageUrl=playInfo.getVideoBase().getCoverURL();
+                if(StringUtils.isBlank(imageUrl)){
+                    continue;
+                }
                 info.setVideoImage(playInfo.getVideoBase().getCoverURL());
                 info.setHlsStatus(YesOrNoEnum.YES.getValue());
                 save(info);
