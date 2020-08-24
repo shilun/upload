@@ -54,7 +54,7 @@ public class VideoJobHandler extends IJobHandler {
                         }
                     }
                     if(playUrlOk){
-                        info.setVideoImage(videoUtil.getVideoInfos(info.getId()).getVideoList().get(0).getCoverURL());
+                        info.setVideoImage(playInfo.getVideoBase().getCoverURL());
                         info.setHlsStatus(YesOrNoEnum.YES.getValue());
                         fileInfoService.save(info);
                     }
