@@ -212,7 +212,8 @@ public class FileInfoController extends AbstractController {
                 response.sendRedirect(video.getVideoUrl());
                 return;
             }
-            if (scode.startsWith("s")) {
+            FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
+            if(FileTypeEnum.VIDEO.getValue()==configByScode.getFileType()){
                 FileInfo video = fileInfoService.findById(file);
                 if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
                     //内部提供自旋获取视频资源
