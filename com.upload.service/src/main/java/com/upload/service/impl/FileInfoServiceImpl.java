@@ -96,13 +96,13 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     @Override
     public FileInfo syncVideoInfo(String id) {
         FileInfo info = findById(id);
-        boolean playUrlOk=false;
-        int indexCounter=0;
-        while(indexCounter<20) {
+        boolean playUrlOk = false;
+        int indexCounter = 0;
+        while (indexCounter < 20) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-               logger.error("获取视频自旋失败",e);
+                logger.error("获取视频自旋失败", e);
             }
             GetPlayInfoResponse playInfo = videoUtil.getPlayInfo(info.getVideoId());
             List<GetPlayInfoResponse.PlayInfo> playes = playInfo.getPlayInfoList();
@@ -119,6 +119,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 info.setVideoImage(playInfo.getVideoBase().getCoverURL());
                 info.setHlsStatus(YesOrNoEnum.YES.getValue());
                 save(info);
+                break;
             }
         }
         return info;
