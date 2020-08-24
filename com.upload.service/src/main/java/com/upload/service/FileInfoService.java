@@ -41,5 +41,5 @@ public abstract interface FileInfoService
    */
   public FileInfo findVideoByVideoId(String voideId);
 
-  public FileInfo syncVideoInfo(String id);
+  public FileInfo syncVideoInfo(FileInfo video);
 }

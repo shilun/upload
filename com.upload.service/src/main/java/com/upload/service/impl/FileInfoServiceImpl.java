@@ -94,9 +94,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
 
     @Override
-    public FileInfo syncVideoInfo(String id) {
+    public FileInfo syncVideoInfo(FileInfo video) {
         FileInfo info = new FileInfo();
-        info.setId(id);
+        info.setId(video.getId());
         boolean playUrlOk = false;
         int indexCounter = 0;
         while (indexCounter < 20) {

@@ -145,7 +145,7 @@ public class FileInfoController extends AbstractController {
                 FileInfo video = fileInfoService.findById(file);
                 if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
                     //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video.getId());
+                    fileInfoService.syncVideoInfo(video);
                 }
                 response.sendRedirect(video.getVideoUrl());
                 return;
@@ -155,7 +155,7 @@ public class FileInfoController extends AbstractController {
                 FileInfo video = fileInfoService.findById(file);
                 if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
                     //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video.getId());
+                    fileInfoService.syncVideoInfo(video);
                 }
                 response.sendRedirect(video.getVideoImage());
                 return;
@@ -207,7 +207,7 @@ public class FileInfoController extends AbstractController {
                 FileInfo video = fileInfoService.findById(file);
                 if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
                     //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video.getId());
+                    fileInfoService.syncVideoInfo(video);
                 }
                 response.sendRedirect(video.getVideoUrl());
                 return;
@@ -216,7 +216,7 @@ public class FileInfoController extends AbstractController {
                 FileInfo video = fileInfoService.findById(file);
                 if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
                     //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video.getId());
+                    fileInfoService.syncVideoInfo(video);
                 }
                 response.sendRedirect(video.getVideoImage());
                 return;
