@@ -320,6 +320,11 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                     logger.error("文件删除失败", e);
                 }
             });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+               logger.error("视频上传sleep.error",e);
+            }
         }
         return fileRealName;
     }
