@@ -24,6 +24,9 @@ public class VideoUtil {
     @Value("${app.ali.accessKey.secret}")
     private String accessKeySecret;
 
+    @Value("${app.ali.video.call.back}")
+    private String videoCallBack;
+
     private DefaultAcsClient client;
 
     /**
@@ -57,7 +60,7 @@ public class VideoUtil {
 
             request.setEnableCheckpoint(false);
             JSONObject messageCallback = new JSONObject();
-            messageCallback.put("CallbackURL", "http://upload.inteeer.com/callBack");
+            messageCallback.put("CallbackURL", videoCallBack);
             messageCallback.put("CallbackType", "http");
             userData.put("MessageCallback", messageCallback.toString());
             request.setUserData(userData.toJSONString());
