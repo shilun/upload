@@ -1,5 +1,6 @@
 package com.upload.service.impl;
 
+import com.aliyuncs.vod.model.v20170321.GetPlayInfoResponse;
 import com.common.exception.BizException;
 import com.common.httpclient.HttpClientUtil;
 import com.common.mongo.AbstractMongoService;
@@ -89,6 +90,38 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         FileInfo fileInfo = new FileInfo();
         fileInfo.setVideoId(voideId);
         return findByOne(fileInfo);
+    }
+
+
+    @Override
+    public FileInfo syncVideoInfo(String id) {
+        FileInfo info = findById(id);
+        boolean playUrlOk=false;
+        int indexCounter=0;
+        while(indexCounter<20) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+               logger.error("获取视频自旋失败",e);
+            }
+            GetPlayInfoResponse playInfo = videoUtil.getPlayInfo(info.getVideoId());
+            List<GetPlayInfoResponse.PlayInfo> playes = playInfo.getPlayInfoList();
+            for (GetPlayInfoResponse.PlayInfo item : playes) {
+                if (item.getPlayURL().endsWith("m3u8")) {
+                    info.setVideoUrl(item.getPlayURL());
+                    playUrlOk = true;
+                }
+                if (item.getPlayURL().endsWith("mp4")) {
+                    info.setVideoSource(item.getPlayURL());
+                }
+            }
+            if (playUrlOk) {
+                info.setVideoImage(playInfo.getVideoBase().getCoverURL());
+                info.setHlsStatus(YesOrNoEnum.YES.getValue());
+                save(info);
+            }
+        }
+        return info;
     }
 
     public Map<String, Object> downFile(String key, String fileName) {

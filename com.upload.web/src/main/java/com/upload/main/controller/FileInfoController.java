@@ -6,6 +6,7 @@ import com.common.util.Result;
 import com.common.util.model.YesOrNoEnum;
 import com.common.web.AbstractController;
 import com.common.web.IExecute;
+import com.upload.domain.FileInfo;
 import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.main.util.FileType;
@@ -141,10 +142,16 @@ public class FileInfoController extends AbstractController {
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equals("m3u8")) {
-                response.sendRedirect(fileInfoService.findById(file).getVideoUrl());
+                FileInfo video = fileInfoService.findById(file);
+                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                    //内部提供自旋获取视频资源
+                    fileInfoService.syncVideoInfo(video.getId());
+                }
+                response.sendRedirect(video.getVideoUrl());
                 return;
             }
             if (scode.startsWith("s")) {
+
                 byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
                 String typeName = "image/" + fileType;
                 download(response, data, typeName, file);
