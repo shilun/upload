@@ -212,16 +212,19 @@ public class FileInfoController extends AbstractController {
                 response.sendRedirect(video.getVideoUrl());
                 return;
             }
-            FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
-            if(FileTypeEnum.VIDEO.getValue()==configByScode.getFileType()){
-                FileInfo video = fileInfoService.findById(file);
-                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
-                    //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video);
+            if (fileType.equalsIgnoreCase("jpeg")) {
+                FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
+                if(FileTypeEnum.VIDEO.getValue()==configByScode.getFileType()){
+                    FileInfo video = fileInfoService.findById(file);
+                    if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                        //内部提供自旋获取视频资源
+                        fileInfoService.syncVideoInfo(video);
+                    }
+                    response.sendRedirect(video.getVideoImage());
+                    return;
                 }
-                response.sendRedirect(video.getVideoImage());
-                return;
             }
+
         } catch (Exception e) {
             throw new BizException(e);
         }
