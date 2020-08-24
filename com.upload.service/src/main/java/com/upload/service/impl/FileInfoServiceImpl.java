@@ -12,6 +12,7 @@ import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
+import com.upload.service.process.AtUtils;
 import com.upload.service.utils.VideoUtil;
 import com.upload.util.constants.SystemConstants;
 import org.apache.commons.io.IOUtils;
@@ -68,10 +69,11 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     private ImageProcessor imageProcessor;
 
 
-    //    private AtUtils atUtils;
+    @Resource
+    private AtUtils atUtils;
     @Resource
     private VideoUtil videoUtil;
-    @Resource(name = "asyncWorkerExecutor")
+    @Resource
     private Executor executor;
 
     public FileInfoServiceImpl() {
@@ -239,9 +241,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
         FileInfo fileInfo = new FileInfo();
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            String id = videoUtil.uploadVideo(fileName, targetFile.getPath());
+
             fileRealName = uuid + "/default.m3u8";
-            fileInfo.setVideoId(id);
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
             fileInfo.setHlsStatus(YesOrNoEnum.NO.getValue());
@@ -263,15 +264,26 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
         }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-
-//            String rootPath = fileRootPath;
-//            if (!rootPath.endsWith("/")) {
-//                rootPath = rootPath + "/";
-//            }
-//            if (!rootPath.startsWith("/")) {
-//                rootPath = "/" + rootPath;
-//            }
-//            atUtils.appendFile(rootPath + config.getScode(), uuid);
+            String rootPath = fileRootPath;
+            if (!rootPath.endsWith("/")) {
+                rootPath = rootPath + "/";
+            }
+            if (!rootPath.startsWith("/")) {
+                rootPath = "/" + rootPath;
+            }
+            File fileFile = targetFile;
+            String finalRootPath = rootPath;
+            File finalTargetFile = targetFile;
+            executor.execute(() -> {
+                try {
+                    atUtils.appendFile(finalRootPath + config.getScode(), uuid);
+                    String id = videoUtil.uploadVideo(file.getName(), fileFile.getPath());
+                    upProperty(fileInfo.getId(), "videoId", id);
+                    finalTargetFile.delete();
+                } catch (Exception e) {
+                    logger.error("文件删除失败", e);
+                }
+            });
         }
         return fileRealName;
     }

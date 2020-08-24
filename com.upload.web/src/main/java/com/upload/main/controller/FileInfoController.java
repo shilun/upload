@@ -141,11 +141,11 @@ public class FileInfoController extends AbstractController {
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equals("m3u8")) {
-                response.sendRedirect(fileInfoService.findVideoByVideoId(file).getVideoUrl());
+                response.sendRedirect(fileInfoService.findById(file).getVideoUrl());
                 return;
             }
             if (scode.startsWith("s")) {
-                response.sendRedirect(fileInfoService.findVideoByVideoId(file).getVideoImage());
+                response.sendRedirect(fileInfoService.findById(file).getVideoImage());
                 return;
             }
             FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
