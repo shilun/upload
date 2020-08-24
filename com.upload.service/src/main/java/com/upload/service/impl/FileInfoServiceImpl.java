@@ -105,10 +105,12 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             for (GetPlayInfoResponse.PlayInfo item : playes) {
                 if (item.getPlayURL().endsWith("m3u8")) {
                     info.setVideoUrl(item.getPlayURL());
+                    video.setVideoUrl(info.getVideoUrl());
                     playUrlOk = true;
                 }
                 if (item.getPlayURL().endsWith("mp4")) {
                     info.setVideoSource(item.getPlayURL());
+                    video.setVideoSource(item.getPlayURL());
                 }
             }
             if (playUrlOk) {
