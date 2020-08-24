@@ -42,6 +42,7 @@ public class FileType {
         FILE_TYPE_MAP.put("2e524d46000000120001", "rmvb"); // rmvb、rm  
         FILE_TYPE_MAP.put("464c5601050000000900", "flv"); // flv、f4v  
         FILE_TYPE_MAP.put("00000020667479706d70", "mp4");
+        FILE_TYPE_MAP.put("00000020667479706973", "mp4");
         FILE_TYPE_MAP.put("49443303000000002176", "mp3");
         FILE_TYPE_MAP.put("000001ba210001000180", "mpg");
         FILE_TYPE_MAP.put("3026b2758e66cf11a6d9", "wmv"); // wmv、asf  

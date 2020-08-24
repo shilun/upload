@@ -2,6 +2,7 @@ package com.upload.main.controller;
 
 import com.common.exception.BizException;
 import com.common.upload.UploadUtil;
+import com.common.util.FileTypeUtil;
 import com.common.util.Result;
 import com.common.util.model.YesOrNoEnum;
 import com.common.web.AbstractController;
@@ -331,6 +332,11 @@ public class FileInfoController extends AbstractController {
     }
 
     public static void main(String[] args) throws IOException {
+
+
+        byte[] bytes1 = IOUtils.toByteArray(new FileInputStream(new File("/Users/mac/Documents/1598275369804.mp4")));
+        byte[] typeData = Arrays.copyOf(bytes1, 10);
+        String fileType = FileType.getFileType(typeData);
 
         UploadUtil uploadUtil = new UploadUtil();
         uploadUtil.setDomainName("upload.inteeer.com");
