@@ -2,7 +2,6 @@ package com.upload.main.controller;
 
 import com.common.exception.BizException;
 import com.common.upload.UploadUtil;
-import com.common.util.FileTypeUtil;
 import com.common.util.Result;
 import com.common.util.model.YesOrNoEnum;
 import com.common.web.AbstractController;
@@ -137,14 +136,12 @@ public class FileInfoController extends AbstractController {
     }
 
 
-
-
     @RequestMapping("{scode}/{file}.{fileType}")
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equals("m3u8")) {
                 FileInfo video = fileInfoService.findById(file);
-                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
                     //内部提供自旋获取视频资源
                     fileInfoService.syncVideoInfo(video);
                 }
@@ -154,7 +151,7 @@ public class FileInfoController extends AbstractController {
             if (scode.startsWith("s")) {
 
                 FileInfo video = fileInfoService.findById(file);
-                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
                     //内部提供自旋获取视频资源
                     fileInfoService.syncVideoInfo(video);
                 }
@@ -206,7 +203,7 @@ public class FileInfoController extends AbstractController {
         try {
             if (fileType.equalsIgnoreCase("m3u8")) {
                 FileInfo video = fileInfoService.findById(file);
-                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
                     //内部提供自旋获取视频资源
                     fileInfoService.syncVideoInfo(video);
                 }
@@ -215,9 +212,9 @@ public class FileInfoController extends AbstractController {
             }
             if (fileType.equalsIgnoreCase("jpeg")) {
                 FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
-                if(FileTypeEnum.VIDEO.getValue()==configByScode.getFileType()){
+                if (FileTypeEnum.VIDEO.getValue() == configByScode.getFileType()) {
                     FileInfo video = fileInfoService.findById(file);
-                    if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                    if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
                         //内部提供自旋获取视频资源
                         fileInfoService.syncVideoInfo(video);
                     }
@@ -314,7 +311,7 @@ public class FileInfoController extends AbstractController {
                         if (config.getFileType() == 2 && !images.contains(fileCode)) {
                             throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
                         }
-                        if (config.getFileType() == 3 && !FileType.isMp4(typeData)) {
+                        if (config.getFileType() == 3 && !file.getName().toLowerCase().endsWith(".mp4")) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
 
