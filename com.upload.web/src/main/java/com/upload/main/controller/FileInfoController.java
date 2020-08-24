@@ -135,54 +135,17 @@ public class FileInfoController extends AbstractController {
     }
 
 
-    public void downVideo(String file, HttpServletResponse response) {
-        String agent = getRequest().getHeader("User-Agent").toUpperCase();
-        File realFile = new File(file);
-        InputStream fis = null;
-        OutputStream os = null;
-        try {
-            fis = new BufferedInputStream(new FileInputStream(realFile.getPath()));
-            byte[] buffer;
-            buffer = new byte[fis.available()];
-            fis.read(buffer);
-            response.reset();
-            //由于火狐和其他浏览器显示名称的方式不相同，需要进行不同的编码处理
-            if (agent.indexOf("FIREFOX") != -1) {
-                response.addHeader("Content-Disposition", "attachment;filename=vedio.ts");
-            } else {//其他浏览器
-                response.addHeader("Content-Disposition", "attachment;filename=vedio.ts");
-            }
-            //设置response编码
-            response.setCharacterEncoding("UTF-8");
-            response.addHeader("Content-Length", String.valueOf(realFile.length()));
-            //设置输出文件类型
-            response.setContentType("video/mpeg4");
-            //获取response输出流
-            os = response.getOutputStream();
-            // 输出文件
-            os.write(buffer);
-        } catch (Exception e) {
-            LOGGER.error("输出视频流失败!", e);
-        } finally {
-            IOUtils.closeQuietly(fis);
-            IOUtils.closeQuietly(os);
-        }
-    }
 
 
     @RequestMapping("{scode}/{file}.{fileType}")
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equals("m3u8")) {
-                response.sendRedirect("http://video.yetanvip.cn/b64d29ac2f174f09952ba441db0a5fc1/da93bd679ca51f40dda3e57c292ab68b-ld.m3u8");
+                response.sendRedirect(fileInfoService.findVideoByVideoId(file).getVideoUrl());
                 return;
             }
             if (scode.startsWith("s")) {
-                scode = scode.substring(1);
-                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
-                String typeName = "image/" + fileType;
-                file = "";
-                download(response, data, typeName, file);
+                response.sendRedirect(fileInfoService.findVideoByVideoId(file).getVideoImage());
                 return;
             }
             FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
@@ -331,10 +294,7 @@ public class FileInfoController extends AbstractController {
                         if (config.getFileType() == 3 && !FileType.isMp4(typeData)) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
-                        if(config.getFileType()==3){
-//                            videoUtil.uploadVideo()
-                            return null;
-                        }
+
                     } catch (BizException e) {
                         log.error("文件上传失败", e);
                         throw e;

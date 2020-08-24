@@ -12,7 +12,7 @@ import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.service.FileInfoService;
 import com.upload.service.FileUploadConfigService;
-import com.upload.service.process.AtUtils;
+import com.upload.service.utils.VideoUtil;
 import com.upload.util.constants.SystemConstants;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -68,9 +68,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
     private ImageProcessor imageProcessor;
 
 
+    //    private AtUtils atUtils;
     @Resource
-    private AtUtils atUtils;
-
+    private VideoUtil videoUtil;
     @Resource(name = "asyncWorkerExecutor")
     private Executor executor;
 
@@ -78,7 +78,16 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
     }
 
+
     private com.google.common.cache.Cache<String, FileUploadConfig> scodeCache = CacheBuilder.newBuilder().initialCapacity(10).concurrencyLevel(5).expireAfterWrite(1, TimeUnit.HOURS).build();
+
+
+    @Override
+    public FileInfo findVideoByVideoId(String voideId) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setVideoId(voideId);
+        return findByOne(fileInfo);
+    }
 
     public Map<String, Object> downFile(String key, String fileName) {
         Map<String, Object> result = new HashMap();
@@ -230,7 +239,9 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
         FileInfo fileInfo = new FileInfo();
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
+            String id = videoUtil.uploadVideo(fileName, targetFile.getPath());
             fileRealName = uuid + "/default.m3u8";
+            fileInfo.setVideoId(id);
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
             fileInfo.setHlsStatus(YesOrNoEnum.NO.getValue());
@@ -252,14 +263,15 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
         }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            String rootPath = fileRootPath;
-            if (!rootPath.endsWith("/")) {
-                rootPath = rootPath + "/";
-            }
-            if (!rootPath.startsWith("/")) {
-                rootPath = "/" + rootPath;
-            }
-            atUtils.appendFile(rootPath + config.getScode(), uuid);
+
+//            String rootPath = fileRootPath;
+//            if (!rootPath.endsWith("/")) {
+//                rootPath = rootPath + "/";
+//            }
+//            if (!rootPath.startsWith("/")) {
+//                rootPath = "/" + rootPath;
+//            }
+//            atUtils.appendFile(rootPath + config.getScode(), uuid);
         }
         return fileRealName;
     }

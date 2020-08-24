@@ -1,14 +1,15 @@
 package com.upload.service.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.vod.upload.impl.UploadVideoImpl;
+import com.aliyun.vod.upload.req.UploadVideoRequest;
+import com.aliyun.vod.upload.resp.UploadVideoResponse;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
-import com.aliyuncs.vod.model.v20170321.CreateUploadVideoRequest;
-import com.aliyuncs.vod.model.v20170321.SubmitTranscodeJobsRequest;
-import com.aliyuncs.vod.model.v20170321.SubmitTranscodeJobsResponse;
+import com.aliyuncs.vod.model.v20170321.*;
 import com.common.exception.ApplicationException;
-import com.common.security.DesEncrypter;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -47,52 +48,101 @@ public class VideoUtil {
      */
     public String uploadVideo(String title, String fileName) {
         try {
-            CreateUploadVideoRequest request = new CreateUploadVideoRequest();
-            request.setTitle(title);
-            request.setFileName(fileName);
-
+            UploadVideoRequest request = new UploadVideoRequest(accessKeyId, accessKeySecret, title, fileName);
+            /* 可指定分片上传时每个分片的大小，默认为1M字节 */
+            request.setPartSize(1 * 1024 * 1024L);
+            /* 可指定分片上传时的并发线程数，默认为1，(注：该配置会占用服务器CPU资源，需根据服务器情况指定）*/
+            request.setTaskNum(1);
             JSONObject userData = new JSONObject();
 
+            request.setEnableCheckpoint(false);
             JSONObject messageCallback = new JSONObject();
             messageCallback.put("CallbackURL", "http://upload.inteeer.com/callBack");
             messageCallback.put("CallbackType", "http");
             userData.put("MessageCallback", messageCallback.toString());
-
-            JSONObject extend = new JSONObject();
-            extend.put("time", System.currentTimeMillis());
-            extend.put("enkey", DesEncrypter.cryptString(extend.getString("time"), "bsm_key_key"));
-            userData.put("Extend", extend.toJSONString());
             request.setUserData(userData.toJSONString());
 
-            return client.getAcsResponse(request).getVideoId();
+            UploadVideoImpl uploader = new UploadVideoImpl();
+            UploadVideoResponse response = uploader.uploadVideo(request);
+            if (response.isSuccess()) {
+                return response.getVideoId();
+            }
+            throw new ApplicationException("uploadVideo.error");
+        } catch (ApplicationException e) {
+            throw e;
         } catch (Exception e) {
             throw new ApplicationException("uploadVideo.error", e);
         }
     }
 
 
+    @SneakyThrows
+    public static void main(String[] args) {
+        VideoUtil util = new VideoUtil();
+        util.accessKeyId = "LTAI4GJijReQZWiB2tBYMHSm";
+        util.accessKeySecret = "XCoZGf8q4GgDE6JUvXQ1KUyiBIOREV";
+        util.initVodClient();
+        String videoId = util.uploadVideo("fdsafads", "/Users/mac/Documents/2ebae7a17dbb40eca7aaedc0df906857.mp4");
+
+        SubmitTranscodeJobsResponse submitTranscodeJobsResponse = util.submitTranscodeJobs(videoId);
+    }
 
     /**
      * 提交媒体处理作业
      */
-    public static SubmitTranscodeJobsResponse submitTranscodeJobs(DefaultAcsClient client) throws Exception {
-        SubmitTranscodeJobsRequest request = new SubmitTranscodeJobsRequest();
-        //需要转码的视频ID
-        request.setVideoId("b64d29ac2f174f09952ba441db0a5fc1");
-        //转码模板ID
-        request.setTemplateGroupId("892483e93e26f646dd876138548f3a22");
+    public SubmitTranscodeJobsResponse submitTranscodeJobs(String videoId) {
+        try {
+            SubmitTranscodeJobsRequest request = new SubmitTranscodeJobsRequest();
+            //需要转码的视频ID
+            request.setVideoId(videoId);
+            //转码模板ID
+            request.setTemplateGroupId("2e8a222b8cac3cb467650271bb58c2de");
+            JSONObject userData = new JSONObject();
+            JSONObject messageCallback = new JSONObject();
+            messageCallback.put("CallbackURL", "http://upload.inteeer.com/transCallBack");
+            messageCallback.put("CallbackType", "http");
+            userData.put("MessageCallback", messageCallback.toString());
 
-        JSONObject userData = new JSONObject();
-
-        JSONObject messageCallback = new JSONObject();
-        messageCallback.put("CallbackURL", "http://upload.inteeer.com/transTemplateCallBack");
-        messageCallback.put("CallbackType", "http");
-        userData.put("MessageCallback", messageCallback.toString());
-
-        return client.getAcsResponse(request);
+            SubmitTranscodeJobsResponse acsResponse = client.getAcsResponse(request);
+            return acsResponse;
+        } catch (Exception e) {
+            throw new ApplicationException("transcode.error", e);
+        }
     }
 
 
+    /**
+     * 获取视频信息
+     *
+     * @param ids
+     * @return
+     * @throws Exception
+     */
+    public GetVideoInfosResponse getVideoInfos(String ids) {
+        try {
+            GetVideoInfosRequest request = new GetVideoInfosRequest();
+            request.setVideoIds(ids.toString());
+            return client.getAcsResponse(request);
+        } catch (Exception e) {
+            throw new ApplicationException("transcode.error", e);
+        }
+    }
 
+    /**
+     * 获取播放地址
+     *
+     * @param videoId
+     * @return
+     * @throws Exception
+     */
+    public GetPlayInfoResponse getPlayInfo(String videoId) {
+        try {
+            GetPlayInfoRequest request = new GetPlayInfoRequest();
+            request.setVideoId(videoId);
+            return client.getAcsResponse(request);
+        } catch (Exception e) {
+            throw new ApplicationException("getPlayInfo.error", e);
+        }
+    }
 
 }

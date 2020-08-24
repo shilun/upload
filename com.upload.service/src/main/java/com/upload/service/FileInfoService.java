@@ -32,4 +32,12 @@ public abstract interface FileInfoService
    * @return
    */
   public FileUploadConfig findConfigByScode(String scode);
+
+
+  /**
+   * 根据视频id查找文件
+   * @param voideId
+   * @return
+   */
+  public FileInfo findVideoByVideoId(String voideId);
 }

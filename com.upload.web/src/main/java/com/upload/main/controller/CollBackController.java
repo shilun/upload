@@ -12,6 +12,7 @@ import java.util.Map;
 @RequestMapping
 @Slf4j
 public class CollBackController {
+
     @RequestMapping("/transCallBack")
     void callBack(Map<String, Object> params) {
         log.error(JSON.toJSON(params).toString());
