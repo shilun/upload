@@ -26,9 +26,6 @@ import java.util.List;
 public class VideoJobHandler extends IJobHandler {
 
     @Resource
-    private AtUtils atUtils;
-
-    @Resource
     private VideoUtil videoUtil;
 
     @Resource
