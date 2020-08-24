@@ -100,7 +100,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
         boolean playUrlOk = false;
         int indexCounter = 0;
         while (indexCounter < 20) {
-            GetPlayInfoResponse playInfo = videoUtil.getPlayInfo(info.getVideoId());
+            GetPlayInfoResponse playInfo = videoUtil.getPlayInfo(video.getVideoId());
             List<GetPlayInfoResponse.PlayInfo> playes = playInfo.getPlayInfoList();
             for (GetPlayInfoResponse.PlayInfo item : playes) {
                 if (item.getPlayURL().endsWith("m3u8")) {
