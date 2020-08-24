@@ -311,7 +311,7 @@ public class FileInfoController extends AbstractController {
                         if (config.getFileType() == 2 && !images.contains(fileCode)) {
                             throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
                         }
-                        if (config.getFileType() == 3 && !file.getName().toLowerCase().endsWith(".mp4")) {
+                        if (config.getFileType() == 3 && !file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
 
