@@ -152,9 +152,12 @@ public class FileInfoController extends AbstractController {
             }
             if (scode.startsWith("s")) {
 
-                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
-                String typeName = "image/" + fileType;
-                download(response, data, typeName, file);
+                FileInfo video = fileInfoService.findById(file);
+                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                    //内部提供自旋获取视频资源
+                    fileInfoService.syncVideoInfo(video.getId());
+                }
+                response.sendRedirect(video.getVideoImage());
                 return;
             }
             FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
@@ -201,15 +204,21 @@ public class FileInfoController extends AbstractController {
     public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equalsIgnoreCase("m3u8")) {
-                downloadPlayerIndex(scode, file, response);
+                FileInfo video = fileInfoService.findById(file);
+                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                    //内部提供自旋获取视频资源
+                    fileInfoService.syncVideoInfo(video.getId());
+                }
+                response.sendRedirect(video.getVideoUrl());
                 return;
             }
             if (scode.startsWith("s")) {
-                scode = scode.substring(1);
-                byte[] data = this.fileInfoService.httpDown(scode, file + "." + fileType, "");
-                String typeName = "image/" + fileType;
-                file = "";
-                download(response, data, typeName, file);
+                FileInfo video = fileInfoService.findById(file);
+                if(YesOrNoEnum.YES.getValue()!=video.getHlsStatus()){
+                    //内部提供自旋获取视频资源
+                    fileInfoService.syncVideoInfo(video.getId());
+                }
+                response.sendRedirect(video.getVideoImage());
                 return;
             }
         } catch (Exception e) {
