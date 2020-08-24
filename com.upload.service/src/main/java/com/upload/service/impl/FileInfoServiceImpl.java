@@ -278,6 +278,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 try {
                     atUtils.appendFile(finalRootPath + config.getScode(), uuid);
                     String id = videoUtil.uploadVideo(file.getName(), fileFile.getPath());
+                    videoUtil.submitTranscodeJobs(id);
                     upProperty(fileInfo.getId(), "videoId", id);
                     finalTargetFile.delete();
                 } catch (Exception e) {
