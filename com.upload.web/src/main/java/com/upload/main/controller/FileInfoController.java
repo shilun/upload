@@ -10,6 +10,7 @@ import com.upload.domain.FileUploadConfig;
 import com.upload.domain.model.FileTypeEnum;
 import com.upload.main.util.FileType;
 import com.upload.service.FileInfoService;
+import com.upload.service.utils.VideoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -52,6 +53,9 @@ public class FileInfoController extends AbstractController {
         images.add("gif");
         images.add("jpeg");
     }
+
+    @Resource
+    private VideoUtil videoUtil;
 
     @RequestMapping("/download")
     public void donwload(DownloadDto dto, HttpServletResponse response) throws Exception {
@@ -170,7 +174,7 @@ public class FileInfoController extends AbstractController {
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
             if (fileType.equals("m3u8")) {
-                downloadPlayerIndex(scode, file, response);
+                response.sendRedirect("http://video.yetanvip.cn/b64d29ac2f174f09952ba441db0a5fc1/da93bd679ca51f40dda3e57c292ab68b-ld.m3u8");
                 return;
             }
             if (scode.startsWith("s")) {
@@ -326,6 +330,10 @@ public class FileInfoController extends AbstractController {
                         }
                         if (config.getFileType() == 3 && !FileType.isMp4(typeData)) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
+                        }
+                        if(config.getFileType()==3){
+//                            videoUtil.uploadVideo()
+                            return null;
                         }
                     } catch (BizException e) {
                         log.error("文件上传失败", e);
