@@ -42,7 +42,7 @@ public class VideoJobHandler extends IJobHandler {
             if (fileInfos.getContent().size() > 1) {
                 for (FileInfo info : fileInfos.getContent()) {
                     boolean playUrlOk=false;
-                    GetPlayInfoResponse playInfo = videoUtil.getPlayInfo(info.getId());
+                    GetPlayInfoResponse playInfo = videoUtil.getPlayInfo(info.getVideoId());
                     List<GetPlayInfoResponse.PlayInfo> playes = playInfo.getPlayInfoList();
                     for (GetPlayInfoResponse.PlayInfo item : playes) {
                         if (item.getPlayURL().endsWith("m3u8")) {
