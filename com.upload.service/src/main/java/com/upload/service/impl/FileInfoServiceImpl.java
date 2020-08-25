@@ -282,7 +282,6 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
         FileInfo fileInfo = new FileInfo();
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-
             fileRealName = uuid + "/default.m3u8";
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
