@@ -114,8 +114,8 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 }
             }
             if (playUrlOk) {
-                String imageUrl=playInfo.getVideoBase().getCoverURL();
-                if(StringUtils.isBlank(imageUrl)){
+                String imageUrl = playInfo.getVideoBase().getCoverURL();
+                if (StringUtils.isBlank(imageUrl)) {
                     continue;
                 }
                 info.setVideoImage(playInfo.getVideoBase().getCoverURL());
@@ -124,7 +124,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 break;
             }
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 logger.error("获取视频自旋失败", e);
             }
@@ -306,19 +306,15 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
         }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            String rootPath = fileRootPath;
-            if (!rootPath.endsWith("/")) {
-                rootPath = rootPath + "/";
-            }
-            if (!rootPath.startsWith("/")) {
-                rootPath = "/" + rootPath;
+            String videoId = videoUtil.uploadVideo(file.getName(), targetFile.getPath());
+            if (StringUtils.isBlank(videoId)) {
+                logger.error("视频上传失败");
             }
             File fileFile = targetFile;
             executor.execute(() -> {
                 try {
-                    String id = videoUtil.uploadVideo(file.getName(), fileFile.getPath());
-                    videoUtil.submitTranscodeJobs(id);
-                    upProperty(fileInfo.getId(), "videoId", id);
+                    videoUtil.submitTranscodeJobs(videoId);
+                    upProperty(fileInfo.getId(), "videoId", videoId);
                     fileFile.delete();
                 } catch (Exception e) {
                     logger.error("文件删除失败", e);
@@ -327,7 +323,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-               logger.error("视频上传sleep.error",e);
+                logger.error("视频上传sleep.error", e);
             }
         }
         return fileRealName;
