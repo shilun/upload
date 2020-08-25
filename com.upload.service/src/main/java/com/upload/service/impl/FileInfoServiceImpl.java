@@ -282,7 +282,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
 
         FileInfo fileInfo = new FileInfo();
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            fileRealName = uuid + "/default.m3u8";
+            fileRealName = uuid + ".mp4";
             fileInfo.setStatus(YesOrNoEnum.NO.getValue());
             fileInfo.setType(FileTypeEnum.VIDEO.getValue());
             fileInfo.setHlsStatus(YesOrNoEnum.NO.getValue());
@@ -305,25 +305,7 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
             }
         }
         if (config.getFileType().intValue() == FileTypeEnum.VIDEO.getValue()) {
-            String videoId = videoUtil.uploadVideo(file.getName(), targetFile.getPath());
-            if (StringUtils.isBlank(videoId)) {
-                logger.error("视频上传失败");
-            }
-            File fileFile = targetFile;
-            executor.execute(() -> {
-                try {
-                    videoUtil.submitTranscodeJobs(videoId);
-                    upProperty(fileInfo.getId(), "videoId", videoId);
-                    fileFile.delete();
-                } catch (Exception e) {
-                    logger.error("文件删除失败", e);
-                }
-            });
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                logger.error("视频上传sleep.error", e);
-            }
+            atUtils.appendFile(pathFile.getPath(),uuid);
         }
         return fileRealName;
     }

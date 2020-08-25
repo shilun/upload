@@ -198,6 +198,13 @@ public class FileInfoController extends AbstractController {
         }
     }
 
+    /**
+     * 用于视频
+     * @param scode
+     * @param file
+     * @param fileType
+     * @param response
+     */
     @RequestMapping("{scode}/{file}/default.{fileType}")
     public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
@@ -296,7 +303,6 @@ public class FileInfoController extends AbstractController {
     @RequestMapping("/upload")
     @ResponseBody
     public Map<String, Object> upload(final MultipartFile file, final String key) {
-
         return buildMessage(new IExecute() {
             public Object getData() {
                 FileUploadConfig config = fileInfoService.findConfigByKey(key);
@@ -314,7 +320,6 @@ public class FileInfoController extends AbstractController {
                         if (config.getFileType() == 3 && !file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
-
                     } catch (BizException e) {
                         log.error("文件上传失败", e);
                         throw e;
@@ -336,14 +341,14 @@ public class FileInfoController extends AbstractController {
         String fileType = FileType.getFileType(typeData);
 
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("upload.inteeer.com");
-//        uploadUtil.setScode("video");
-//        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
+        uploadUtil.setDomainName("127.0.0.1:8081");
+        uploadUtil.setScode("video");
+        uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
 
-        uploadUtil.setScode("img");
-        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
+//        uploadUtil.setScode("img");
+//        uploadUtil.setCode("88c0c97d2983479597130e1c96a25115");
         for (int i = 0; i < 100; i++) {
-            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/ss.png"));
+            Result<String> stringResult = uploadUtil.uploadFile(new File("/Users/mac/Documents/1598275369804.mp4"));
             byte[] bytes = uploadUtil.downFile(stringResult.getModule());
 
         }

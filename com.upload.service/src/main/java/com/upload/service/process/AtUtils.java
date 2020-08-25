@@ -30,18 +30,14 @@ public class AtUtils {
             taskDir.mkdir();
         }
         StringBuilder builder = new StringBuilder();
-        builder.append("eval \"mkdir ").append(root).append(name).append(" -p").append("\n\"");
         String path = root + name;
-        builder.append("eval \"ffmpeg -i ").append(path).append(".mp4 -r 1 -t 1  ").append(path).append("/default.jpeg").append("\n\"");
-
-        builder.append("eval \"ffmpeg -i ").append(path).append("/temp.mp4 -codec copy -vbsf h264_mp4toannexb -map 0 -f segment -segment_list ").append(path).append("/default.m3u8 -segment_time 2 ").append(path).append("/%03d.ts").append("\n\"");
-        builder.append("eval \"rm -rf ").append(root).append("task/").append(name).append(".task").append("\n\"");
+        builder.append("eval \"ffmpeg -i ").append(path).append(".mp4 -r 1 -t 1  ").append(path).append(".jpeg").append("\"\n");
+        builder.append("eval \"rm -rf ").append(root).append("task/").append(name).append(".task").append("\"\n");
         try {
             IOUtils.write(builder.toString().getBytes(), new FileOutputStream(new File(root + "task/" + name + ".task")));
         } catch (IOException e) {
             log.error("生成任务指令文件失败");
         }
-
         processUtil.execProcess("at now -M -f " + root + "task/" + name + ".task");
     }
 
