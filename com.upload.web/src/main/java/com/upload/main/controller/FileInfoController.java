@@ -139,30 +139,30 @@ public class FileInfoController extends AbstractController {
     @RequestMapping("{scode}/{file}.{fileType}")
     public void downloadResource(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
         try {
-            if (fileType.equals("m3u8")) {
-                FileInfo video = fileInfoService.findById(file);
-                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
-                    //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video);
-                }
-                response.sendRedirect(video.getVideoUrl());
-                return;
-            }
-            if (scode.startsWith("s")) {
-
-                FileInfo video = fileInfoService.findById(file);
-                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
-                    //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video);
-                }
-                response.sendRedirect(video.getVideoImage());
-                return;
-            }
+//            if (fileType.equals("m3u8")) {
+//                FileInfo video = fileInfoService.findById(file);
+//                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
+//                    //内部提供自旋获取视频资源
+//                    fileInfoService.syncVideoInfo(video);
+//                }
+//                response.sendRedirect(video.getVideoUrl());
+//                return;
+//            }
+//            if (scode.startsWith("s")) {
+//
+//                FileInfo video = fileInfoService.findById(file);
+//                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
+//                    //内部提供自旋获取视频资源
+//                    fileInfoService.syncVideoInfo(video);
+//                }
+//                response.sendRedirect(video.getVideoImage());
+//                return;
+//            }
             FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
             if (configByScode.getHttpDown().intValue() == YesOrNoEnum.NO.getValue()) {
                 throw new BizException("data.error", "非法操作");
             }
-            if (images.contains(fileType)) {
+            if (FileTypeEnum.PICTURE.getValue() == configByScode.getFileType()) {
                 String path = fileRootPath + "/" + scode + "/" + file + "." + fileType;
                 //对老图片路径进行处理
                 File tempFile = new File(path);
@@ -200,6 +200,7 @@ public class FileInfoController extends AbstractController {
 
     /**
      * 用于视频
+     *
      * @param scode
      * @param file
      * @param fileType
@@ -335,13 +336,12 @@ public class FileInfoController extends AbstractController {
 
     public static void main(String[] args) throws IOException {
 
-
         byte[] bytes1 = IOUtils.toByteArray(new FileInputStream(new File("/Users/mac/Documents/1598275369804.mp4")));
         byte[] typeData = Arrays.copyOf(bytes1, 10);
         String fileType = FileType.getFileType(typeData);
 
         UploadUtil uploadUtil = new UploadUtil();
-        uploadUtil.setDomainName("127.0.0.1:8081");
+        uploadUtil.setDomainName("upload.inteeer.com");
         uploadUtil.setScode("video");
         uploadUtil.setCode("88c0c97d2983479597130e1c96a25453");
 
