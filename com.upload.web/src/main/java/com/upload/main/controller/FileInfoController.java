@@ -198,43 +198,43 @@ public class FileInfoController extends AbstractController {
         }
     }
 
-    /**
-     * 用于视频
-     *
-     * @param scode
-     * @param file
-     * @param fileType
-     * @param response
-     */
-    @RequestMapping("{scode}/{file}/default.{fileType}")
-    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
-        try {
-            if (fileType.equalsIgnoreCase("m3u8")) {
-                FileInfo video = fileInfoService.findById(file);
-                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
-                    //内部提供自旋获取视频资源
-                    fileInfoService.syncVideoInfo(video);
-                }
-                response.sendRedirect(video.getVideoUrl());
-                return;
-            }
-            if (fileType.equalsIgnoreCase("jpeg")) {
-                FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
-                if (FileTypeEnum.VIDEO.getValue() == configByScode.getFileType()) {
-                    FileInfo video = fileInfoService.findById(file);
-                    if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
-                        //内部提供自旋获取视频资源
-                        fileInfoService.syncVideoInfo(video);
-                    }
-                    response.sendRedirect(video.getVideoImage());
-                    return;
-                }
-            }
-
-        } catch (Exception e) {
-            throw new BizException(e);
-        }
-    }
+//    /**
+//     * 用于视频
+//     *
+//     * @param scode
+//     * @param file
+//     * @param fileType
+//     * @param response
+//     */
+//    @RequestMapping("{scode}/{file}/default.{fileType}")
+//    public void downloadVideoImage(@PathVariable("scode") String scode, @PathVariable("file") String file, @PathVariable("fileType") String fileType, HttpServletResponse response) {
+//        try {
+//            if (fileType.equalsIgnoreCase("m3u8")) {
+//                FileInfo video = fileInfoService.findById(file);
+//                if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
+//                    //内部提供自旋获取视频资源
+//                    fileInfoService.syncVideoInfo(video);
+//                }
+//                response.sendRedirect(video.getVideoUrl());
+//                return;
+//            }
+//            if (fileType.equalsIgnoreCase("jpeg")) {
+//                FileUploadConfig configByScode = fileInfoService.findConfigByScode(scode);
+//                if (FileTypeEnum.VIDEO.getValue() == configByScode.getFileType()) {
+//                    FileInfo video = fileInfoService.findById(file);
+//                    if (YesOrNoEnum.YES.getValue() != video.getHlsStatus()) {
+//                        //内部提供自旋获取视频资源
+//                        fileInfoService.syncVideoInfo(video);
+//                    }
+//                    response.sendRedirect(video.getVideoImage());
+//                    return;
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            throw new BizException(e);
+//        }
+//    }
 
     @RequestMapping({"/download_erro"})
     @ResponseBody
