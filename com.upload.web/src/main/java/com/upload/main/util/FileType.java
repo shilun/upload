@@ -81,7 +81,15 @@ public class FileType {
      * @return
      */
     public static String getFileType(byte[] bytes) {
-        return  FILE_TYPE_MAP.get(bytesToHexString(bytes));
+        String fileCode = bytesToHexString(bytes);
+        Iterator<String> keyIter = FILE_TYPE_MAP.keySet().iterator();
+        while (keyIter.hasNext()) {
+            String key = keyIter.next();
+            if (key.toLowerCase().startsWith(fileCode.toLowerCase()) || fileCode.toLowerCase().startsWith(key.toLowerCase())) {
+                return FILE_TYPE_MAP.get(key);
+            }
+        }
+        return null;
     }
 
 
@@ -96,7 +104,7 @@ public class FileType {
 
 
     public static void main(String[] args) {
-        String fileType = getFileType(new File("/Users/mac/Documents/test.jpg"));
+        String fileType = getFileType(new File("/Users/mac/Documents/timg.jpeg"));
         System.out.println(fileType);
     }
 
