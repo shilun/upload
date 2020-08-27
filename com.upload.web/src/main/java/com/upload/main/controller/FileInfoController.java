@@ -312,12 +312,12 @@ public class FileInfoController extends AbstractController {
                 }
                 if (config.getFileType() != 1) {
                     try {
-                        byte[] bytes = file.getBytes();
-                        byte[] typeData = Arrays.copyOf(bytes, 10);
-                        String fileCode = FileType.getFileType(typeData);
-                        if (config.getFileType() == 2 && !images.contains(fileCode)) {
-                            throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
-                        }
+//                        byte[] bytes = file.getBytes();
+//                        byte[] typeData = Arrays.copyOf(bytes, 10);
+////                        String fileCode = FileType.getFileType(typeData);
+//                        if (config.getFileType() == 2 && !images.contains(fileCode)) {
+//                            throw new BizException("data.error", "图片上传失败,请上传jpg/jpeg/png格式图片");
+//                        }
                         if (config.getFileType() == 3 && !file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
                             throw new BizException("data.error", "mp4上传失败,请上传mp4视频文件");
                         }
