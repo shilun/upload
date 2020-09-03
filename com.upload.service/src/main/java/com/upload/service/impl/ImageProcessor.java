@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * 图片存储处理器
@@ -57,7 +59,6 @@ public class ImageProcessor {
     }
 
     /**
-     *
      * @param targetFile
      * @param tmpDefaultSize
      * @return
@@ -69,7 +70,7 @@ public class ImageProcessor {
         try {
             tmpIn = new FileInputStream(targetFile);
         } catch (Exception e) {
-            logger.error("读取图片失败",e);
+            logger.error("读取图片失败", e);
         }
         Result tmpFlag = null;
         // 得到源图宽
@@ -84,7 +85,7 @@ public class ImageProcessor {
             // 得到源图长
             height = tmpImg.getHeight(null);
         } catch (Exception e) {
-            logger.error("图片保存大小",e);
+            logger.error("图片保存大小", e);
             throw new ApplicationException("文件上传失败,请上传图片文件", e);
         }
 
@@ -100,10 +101,10 @@ public class ImageProcessor {
                     int tmpResizeHeight = Integer.parseInt(tmpSizeStr[1]);
 
                     String tempFile = targetFile.getPath();
-                    String prefix=tempFile.substring(tempFile.lastIndexOf("."));
-                    tempFile=tempFile.substring(0,tempFile.lastIndexOf("."));
-                    tempFile=tempFile+"_"+tmpResizeWidth+"x"+tmpResizeHeight;
-                    tempFile=tempFile+prefix;
+                    String prefix = tempFile.substring(tempFile.lastIndexOf("."));
+                    tempFile = tempFile.substring(0, tempFile.lastIndexOf("."));
+                    tempFile = tempFile + "_" + tmpResizeWidth + "x" + tmpResizeHeight;
+                    tempFile = tempFile + prefix;
                     if (width > height) {
                         // 以宽度为基准，等比例放缩图片
                         int tmpHeight = (int) (height * tmpResizeWidth / width);
@@ -128,12 +129,12 @@ public class ImageProcessor {
         result.setSuccess(true);
         return result;
     }
+
     /**
-     *
      * @param targetFile
      * @return
      */
-    public Result saveImage(File targetFile, int maxWidth,int maxHeight) {
+    public Result saveImage(File targetFile, int maxWidth, int maxHeight) {
         Result result = new Result();
         Image tmpImg = null;
 
@@ -156,7 +157,7 @@ public class ImageProcessor {
             // 得到源图长
             height = tmpImg.getHeight(null);
         } catch (Exception e) {
-            logger.error("图片保存大小",e);
+            logger.error("图片保存大小", e);
             IOUtils.closeQuietly(tmpIn);
             throw new ApplicationException("文件上传失败,请上传图片文件", e);
         }
@@ -164,24 +165,24 @@ public class ImageProcessor {
         int tmpResizeHeight = maxHeight;
 
         String tempFile = targetFile.getPath();
-        String prefix=tempFile.substring(tempFile.lastIndexOf("."));
-        tempFile=tempFile.substring(0,tempFile.lastIndexOf("."));
-        tempFile=tempFile+"_"+tmpResizeWidth+"x"+tmpResizeHeight;
-        tempFile=tempFile+prefix;
+        String prefix = tempFile.substring(tempFile.lastIndexOf("."));
+        tempFile = tempFile.substring(0, tempFile.lastIndexOf("."));
+        tempFile = tempFile + "_" + tmpResizeWidth + "x" + tmpResizeHeight;
+        tempFile = tempFile + prefix;
         if (width > height) {
             // 以宽度为基准，等比例放缩图片
             int tmpHeight = (int) (height * tmpResizeWidth / width);
-            if(tmpHeight<height){
-                tmpHeight=height;
-                tmpResizeWidth=width;
+            if (tmpHeight < height) {
+                tmpHeight = height;
+                tmpResizeWidth = width;
             }
             tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
         } else {
             // 以高度为基准，等比例缩放图片
             int tmpWidth = (int) (width * tmpResizeHeight / height);
-            if(tmpWidth<width){
-                tmpResizeHeight=height;
-                tmpWidth=width;
+            if (tmpWidth < width) {
+                tmpResizeHeight = height;
+                tmpWidth = width;
             }
             tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile);
         }
@@ -212,8 +213,12 @@ public class ImageProcessor {
         if (!destFile.getParentFile().exists()) {
             destFile.getParentFile().mkdirs();
         }
+        if (aWidth == 400) {
+            aWidth = 800;
+            aHeight = 800;
+        }
         try {
-            Thumbnails.of(sourceFile).size(aWidth,aHeight).toFile(taskFile);
+            Thumbnails.of(sourceFile).size(aWidth, aHeight).toFile(taskFile);
             result.addDefaultModel("size", destFile.length());
         } catch (IOException e) {
             logger.error("上传文件失", e);
@@ -228,8 +233,6 @@ public class ImageProcessor {
         result.setSuccess(true);
         return result;
     }
-
-
 
 
 }
