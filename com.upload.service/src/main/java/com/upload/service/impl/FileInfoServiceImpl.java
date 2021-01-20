@@ -242,16 +242,22 @@ public class FileInfoServiceImpl extends AbstractMongoService<FileInfo> implemen
                 throw new BizException("004", "图片类型不符合规范");
             }
 
-            File picDir = new File(pathFile + File.separator + uuid);
-            picDir.mkdirs();
-            fileRealName = uuid + "." + extFile;
-            targetFile = new File(picDir, fileRealName);
+            targetFile = new File("/data/img/"+uuid+"." + extFile);
+
             try {
-                file.transferTo(targetFile.getAbsoluteFile());
-            } catch (Exception e) {
-                throw new BizException("005", "文件上传失败，请重试");
+                file.transferTo(targetFile);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            imageProcessor.saveImage(targetFile, null);
+//            picDir.mkdirs();
+             fileRealName = uuid + "." + extFile;
+//            targetFile = new File(picDir, fileRealName);
+//            try {
+//                file.transferTo(targetFile.getAbsoluteFile());
+//            } catch (Exception e) {
+//                throw new BizException("005", "文件上传失败，请重试");
+//            }
+//            imageProcessor.saveImage(targetFile, null);
             other = false;
         } else {
             File picDir = pathFile;
