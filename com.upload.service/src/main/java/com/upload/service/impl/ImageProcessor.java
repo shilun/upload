@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 
 /**
  * 图片存储处理器
@@ -108,11 +110,11 @@ public class ImageProcessor {
                     if (width > height) {
                         // 以宽度为基准，等比例放缩图片
                         int tmpHeight = (int) (height * tmpResizeWidth / width);
-                        tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
+                        tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile, false);
                     } else {
                         // 以高度为基准，等比例缩放图片
                         int tmpWidth = (int) (width * tmpResizeHeight / height);
-                        tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile);
+                        tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile, false);
                     }
                     if (!tmpFlag.isSuccess()) {
                         result.setSuccess(false);
@@ -176,7 +178,7 @@ public class ImageProcessor {
                 tmpHeight = height;
                 tmpResizeWidth = width;
             }
-            tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile);
+            tmpFlag = resize(targetFile, tmpResizeWidth, tmpHeight, tempFile, false);
         } else {
             // 以高度为基准，等比例缩放图片
             int tmpWidth = (int) (width * tmpResizeHeight / height);
@@ -184,7 +186,7 @@ public class ImageProcessor {
                 tmpResizeHeight = height;
                 tmpWidth = width;
             }
-            tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile);
+            tmpFlag = resize(targetFile, tmpWidth, tmpResizeHeight, tempFile, false);
         }
         int fileSize = ((Long) tmpFlag.get("size")).intValue();
         if (!tmpFlag.isSuccess()) {
@@ -206,19 +208,21 @@ public class ImageProcessor {
      * @param aHeight
      * @return
      */
-    public Result resize(File sourceFile, int aWidth, int aHeight, String taskFile) {
+    public Result resize(File sourceFile, int aWidth, int aHeight, String taskFile, Boolean soft) {
         Result result = new Result();
         // SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
         File destFile = new File(taskFile);
         if (!destFile.getParentFile().exists()) {
             destFile.getParentFile().mkdirs();
         }
-        if (aWidth == 400) {
-            aWidth = 800;
-            aHeight = 800;
-        }
         try {
-            Thumbnails.of(sourceFile).size(aWidth, aHeight).toFile(taskFile);
+            Thumbnails.Builder<File> of = Thumbnails.of(sourceFile);
+            if (soft) {
+                Files.createSymbolicLink(FileSystems.getDefault().getPath(destFile.getPath()), FileSystems.getDefault().getPath(sourceFile.getPath()));
+
+            } else {
+                of.size(aWidth, aHeight).toFile(taskFile);
+            }
             result.addDefaultModel("size", destFile.length());
         } catch (IOException e) {
             logger.error("上传文件失", e);

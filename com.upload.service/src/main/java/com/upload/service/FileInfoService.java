@@ -5,6 +5,7 @@ import com.upload.domain.FileInfo;
 import com.upload.domain.FileUploadConfig;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,8 @@ public abstract interface FileInfoService
   extends MongoService<FileInfo>
 {
   public abstract Map<String, Object> downFile(String paramString1, String paramString2);
-  
-  public abstract byte[] httpDown(String paramString1, String paramString2,String size);
+
+  public abstract File httpDown(String paramString1, String paramString2,String size);
   public abstract File httpDown(String paramString1, String paramString2);
   
   public abstract String upload(MultipartFile paramMultipartFile, String key,FileUploadConfig config);
@@ -34,12 +35,5 @@ public abstract interface FileInfoService
   public FileUploadConfig findConfigByScode(String scode);
 
 
-  /**
-   * 根据视频id查找文件
-   * @param voideId
-   * @return
-   */
-  public FileInfo findVideoByVideoId(String voideId);
 
-  public FileInfo syncVideoInfo(FileInfo video);
 }
